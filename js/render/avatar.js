@@ -13,8 +13,9 @@ export function drawAvatar(cv, ch) {
   c.fillStyle = g || "rgba(255,255,255,.04)";
   c.fillRect(0, 0, cv.width, cv.height);
   c.save();
-  c.scale(1.32, 1.32);
-  c.translate(-10, -16);
+  // bust framing: head + shoulders + held props, cropped at mid-torso
+  c.scale(1.25, 1.25);
+  c.translate(-5.2, 2);
   const ghost = Object.assign({}, ch, { dir: "down", x: 34, y: 78, isUser: false });
   try {
     drawCharacter(c, ghost, { showNames: false });

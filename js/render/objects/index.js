@@ -59,12 +59,9 @@ export const showcaseFiles = OBJECT_MODULES.map((m) => ({
   ),
 }));
 
-/** Props override for a named variant (direction or decor view). */
+/** Props override for a named variant (decor views only — nothing rotates). */
 export function variantProps(module, variant) {
   const base = { ...module.defaultProps };
-  if (module.supportsDirection && variant !== "Default") {
-    base.dir = variant;
-  }
   if (module.name === "window") {
     base.view = variant === "Hills" ? "hills" : "city";
   }

@@ -1,37 +1,60 @@
-// render/objects/cup.js — mug/cup showcase file.
-import { ell, rrPath } from "../../core/utils.js";
+// render/objects/cup.js — mug showcase file. FIXED orientation (handle on
+// the east side, rim + coffee read from above).
+import { ell } from "../../core/utils.js";
 
 export const Cup = {
   name: "cup",
   title: "Mug",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 2.4, // gallery zoom (scene stays 1:1)
   defaultProps: { asset: "cup", x: 0, y: 0, z: 0, color: "#ff5d7a" },
 
-  draw(c, a) { 
-  const x = a.x, Y = a.y - (a.z || 0), col = a.color || "#ffffff";
-  c.fillStyle = "rgba(30,25,50,.20)";
-  ell(c, x, Y + 1.5, 7.5, 3.2);
-  c.fill();
-  c.fillStyle = "#f7f4ee";
-  rrPath(c, x - 5, Y - 11, 10, 12.5, 2.5);
-  c.fill();
-  c.fillStyle = col;
-  rrPath(c, x - 5, Y - 11, 10, 4, 2.5);
-  c.fill();
-  c.fillStyle = "rgba(255,255,255,.5)";
-  c.fillRect(x - 3.8, Y - 9.5, 1.8, 9);
-  c.strokeStyle = "#e2dbcd";
-  c.lineWidth = 1.6;
-  c.beginPath();
-  c.arc(x + 6.2, Y - 6, 3.2, -1.2, 1.2);
-  c.stroke();
-  c.fillStyle = "rgba(120,80,50,.55)";
-  ell(c, x, Y - 11, 4, 1.6);
-  c.fill();
-},
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return (a.y || 0) + 2;
-}
+  draw(c, a) {
+    const x = a.x, Y = a.y - (a.z || 0), col = a.color || "#ffffff";
+    c.fillStyle = "rgba(30,25,50,.20)";
+    ell(c, x, Y + 1.2, 7.2, 3);
+    c.fill();
+    /* handle */
+    c.strokeStyle = "#e2dbcd";
+    c.lineWidth = 2;
+    c.beginPath();
+    c.arc(x + 5.6, Y - 5.4, 3.4, -1.25, 1.25);
+    c.stroke();
+    /* body: slight taper, rounded bottom */
+    c.fillStyle = "#f7f4ee";
+    c.beginPath();
+    c.moveTo(x - 5.2, Y - 10);
+    c.lineTo(x + 5.2, Y - 10);
+    c.lineTo(x + 4.4, Y - 1);
+    c.quadraticCurveTo(x + 4.2, Y + 0.6, x + 2.6, Y + 0.6);
+    c.lineTo(x - 2.6, Y + 0.6);
+    c.quadraticCurveTo(x - 4.2, Y + 0.6, x - 4.4, Y - 1);
+    c.closePath();
+    c.fill();
+    /* colour band */
+    c.save();
+    c.clip();
+    c.fillStyle = col;
+    c.fillRect(x - 6, Y - 10, 12, 4.4);
+    c.fillStyle = "rgba(255,255,255,.5)";
+    c.fillRect(x - 3.8, Y - 8.6, 1.8, 8.4);
+    c.fillStyle = "rgba(0,0,0,.10)";
+    c.fillRect(x + 2.6, Y - 10, 3.4, 11);
+    c.restore();
+    /* rim + coffee */
+    c.fillStyle = "#fdfbf6";
+    ell(c, x, Y - 10, 5.2, 2.1);
+    c.fill();
+    c.fillStyle = "rgba(120,80,50,.62)";
+    ell(c, x, Y - 10, 3.9, 1.5);
+    c.fill();
+    c.fillStyle = "rgba(255,255,255,.35)";
+    ell(c, x - 1.2, Y - 10.4, 1.4, 0.5);
+    c.fill();
+  },
+
+  sortY(a) {
+    return (a.y || 0) + 2;
+  },
 };

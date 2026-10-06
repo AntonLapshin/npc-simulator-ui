@@ -1,9 +1,11 @@
 // showcase/app.js — thin gallery view-model (showcase pattern).
 //
 // Binds the pure core (core.js: registry / select / URL codec) to the DOM:
-// sidebar list, canvas stage, N/E/S/W segmented control and props readout.
-// Router-agnostic: syncs `?file=..&showcase=..` via window.history + popstate,
-// mirroring AntonLapshin/showcase `useShowcase.ts`.
+// sidebar list, canvas stage, variant segmented control (decor views only —
+// nothing rotates any more), a per-module configuration panel (character:
+// emotion / skin / hair / pants / shoes / pose / speech / held props) and a
+// props readout. Router-agnostic: syncs `?file=..&showcase=..&cfg=..` via
+// window.history + popstate, mirroring AntonLapshin/showcase `useShowcase.ts`.
 
 import {
   createShowcaseRegistry,
@@ -14,6 +16,7 @@ import {
 } from "./core.js";
 import { showcaseFiles } from "./files.js";
 import { variantProps } from "../render/objects/index.js";
+import { drawBubble } from "../render/bubble.js";
 
 const STAGE = { w: 560, h: 400 };
 
@@ -40,6 +43,11 @@ function placement(module, props) {
   if (module.name === "rug" || module.name === "zone") {
     p.x = STAGE.w / 2;
     p.y = STAGE.h / 2;
+    return p;
+  }
+  if (module.name === "character") {
+    p.x = STAGE.w / 2;
+    p.y = Math.round(STAGE.h * 0.78);
     return p;
   }
   p.x = STAGE.w / 2;
@@ -70,23 +78,44 @@ function paintStage(ctx, module, props) {
     ctx.lineTo(W, y + 0.5);
     ctx.stroke();
   }
-  // floor line for standing objects
+  // gallery zoom around the placement anchor (scene renders stay 1:1)
+  const zs = module.showcaseScale || 1;
+  ctx.save();
+  if (zs !== 1) {
+    ctx.translate(props.x, props.y);
+    ctx.scale(zs, zs);
+    ctx.translate(-props.x, -props.y);
+  }
+  // floor line for standing objects (inside the zoom so it stays glued)
   if (!WALL_MOUNTED.has(module.name) && module.name !== "rug" && module.name !== "zone") {
     ctx.strokeStyle = "rgba(255,255,255,.12)";
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.5 / zs;
     ctx.beginPath();
     ctx.moveTo(40, props.y + 14.5);
     ctx.lineTo(W - 40, props.y + 14.5);
     ctx.stroke();
   }
+  let stageErr = null;
   try {
     module.draw(ctx, props);
+    // optional speech bubble (character config)
+    if (props.speech) {
+      drawBubble(ctx, {
+        x: props.x, y: props.y - (props.pose === "prone" ? 26 : 0),
+        text: props.speechText || "Hi! Nice to meet you.",
+        kind: "say", name: props.name || "NPC", color: props.color || "#4f7cff",
+      }, [], STAGE);
+    }
   } catch (err) {
-    console.error(`[showcase:${module.name}]`, err);
+    stageErr = err;
+  }
+  ctx.restore();
+  if (stageErr) {
+    console.error(`[showcase:${module.name}]`, stageErr);
     ctx.fillStyle = "#ff5d7a";
     ctx.font = "600 13px Outfit, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(`render error: ${err.message}`, W / 2, H / 2);
+    ctx.fillText(`render error: ${stageErr.message}`, W / 2, H / 2);
     ctx.textAlign = "left";
   }
 }
@@ -105,7 +134,111 @@ function fitCanvas(canvas) {
   }
 }
 
-function main() {
+/* ── configuration panel (character) ─────────────────────────────────── */
+
+function decodeCfg(search) {
+  const q = new URLSearchParams(String(search || "").replace(/^[?#]/, ""));
+  const raw = q.get("cfg");
+  if (!raw) return {};
+  try {
+    const v = JSON.parse(raw);
+    return v && typeof v === "object" ? v : {};
+  } catch {
+    return {};
+  }
+}
+
+function encodeCfg(cfg) {
+  return Object.keys(cfg).length ? JSON.stringify(cfg) : null;
+}
+
+/** Apply stored config values on top of module defaults (in props order). */
+function applyCfg(module, props, cfg) {
+  const controls = module.controls || [];
+  for (const ctl of controls) {
+    if (ctl.key in cfg) ctl.apply(props, cfg[ctl.key]);
+  }
+  return props;
+}
+
+function buildControls(module, cfg, onChange) {
+  const wrap = document.createElement("div");
+  wrap.className = "sc-cfg";
+  const controls = module.controls || [];
+  for (const ctl of controls) {
+    const row = document.createElement("div");
+    row.className = "sc-cfg-row";
+    const lab = document.createElement("span");
+    lab.className = "sc-cfg-label";
+    lab.textContent = ctl.label;
+    row.append(lab);
+
+    if (ctl.type === "select") {
+      const sel = document.createElement("select");
+      for (const opt of ctl.options) {
+        const o = document.createElement("option");
+        o.value = opt.value;
+        o.textContent = opt.label;
+        sel.append(o);
+      }
+      sel.dataset.key = ctl.key;
+      sel.addEventListener("change", () => onChange(ctl, sel.value));
+      row.append(sel);
+    } else if (ctl.type === "swatches") {
+      const box = document.createElement("div");
+      box.className = "sc-swatches";
+      box.dataset.key = ctl.key;
+      ctl.options.forEach((opt, i) => {
+        const b = document.createElement("button");
+        b.className = "sc-swatch";
+        b.style.background = opt.color;
+        b.title = opt.label;
+        b.dataset.index = String(i);
+        b.addEventListener("click", () => onChange(ctl, opt.value));
+        box.append(b);
+      });
+      row.append(box);
+    } else if (ctl.type === "toggle") {
+      const b = document.createElement("button");
+      b.className = "sc-toggle";
+      b.dataset.key = ctl.key;
+      b.textContent = "off";
+      b.addEventListener("click", () => {
+        const on = b.classList.toggle("on");
+        b.textContent = on ? "on" : "off";
+        onChange(ctl, on);
+      });
+      row.append(b);
+    }
+    wrap.append(row);
+  }
+  return wrap;
+}
+
+/** Reflect current props back into the widgets (after deep-link/apply). */
+function syncControls(module, props, wrap) {
+  for (const ctl of module.controls || []) {
+    const cur = ctl.get(props);
+    if (ctl.type === "select") {
+      const sel = wrap.querySelector(`select[data-key="${ctl.key}"]`);
+      if (sel) sel.value = cur;
+    } else if (ctl.type === "swatches") {
+      const box = wrap.querySelector(`.sc-swatches[data-key="${ctl.key}"]`);
+      if (box) {
+        for (const b of box.children) b.classList.toggle("on", Number(b.dataset.index) === cur);
+      }
+    } else if (ctl.type === "toggle") {
+      const b = wrap.querySelector(`.sc-toggle[data-key="${ctl.key}"]`);
+      if (b) {
+        b.classList.toggle("on", Boolean(cur));
+        b.textContent = cur ? "on" : "off";
+      }
+    }
+  }
+}
+
+export function main() {
+  if (typeof document === "undefined") return; // headless import (QA/tests)
   const registry = createShowcaseRegistry(showcaseFiles);
   const canvas = document.getElementById("scCanvas");
   const ctx = fitCanvas(canvas);
@@ -116,6 +249,8 @@ function main() {
   const segNote = document.getElementById("scSegNote");
   const propsEl = document.getElementById("scProps");
   const countEl = document.getElementById("scCount");
+  const cfgCard = document.getElementById("scCfgCard");
+  const cfgBody = document.getElementById("scCfg");
 
   countEl.textContent = `${registry.files.length} objects`;
 
@@ -137,19 +272,22 @@ function main() {
   }
 
   let state = createShowcaseState();
+  let cfg = decodeCfg(location.search);
   // initial selection from the URL (deep-linking), else the first file
   const initial = decodeUrlPath(location.search);
   state = select(state, registry, initial.file, initial.showcase);
 
+  let cfgWrap = null;
+
   function render() {
     const file = registry.byName.get(state.file);
     const module = file.module;
-    const props = placement(module, variantProps(module, state.showcase));
+    const props = placement(module, applyCfg(module, variantProps(module, state.showcase), cfg));
     // sidebar active
     rows.forEach((b, name) => b.classList.toggle("on", name === file.name));
     // header
     titleEl.textContent = file.name;
-    subEl.textContent = `${module.name} · ${module.supportsDirection ? "rotatable" : "fixed view"}${module.name === "window" ? " · City/Hills views" : ""}`;
+    subEl.textContent = `${module.name} · fixed view${module.name === "window" ? " · City/Hills views" : ""}`;
     // segmented control: one button per variant; hidden for single Default
     segEl.innerHTML = "";
     const variants = Object.keys(file.showcases);
@@ -169,6 +307,23 @@ function main() {
         segEl.append(b);
       }
     }
+    // configuration panel (character only, for now)
+    if (module.controls && module.controls.length) {
+      cfgCard.style.display = "";
+      if (!cfgWrap || cfgWrap.dataset.module !== module.name) {
+        cfgBody.innerHTML = "";
+        cfgWrap = buildControls(module, cfg, (ctl, value) => {
+          cfg = { ...cfg, [ctl.key]: value };
+          apply(select(state, registry, state.file, state.showcase), true);
+        });
+        cfgWrap.dataset.module = module.name;
+        cfgBody.append(cfgWrap);
+      }
+      syncControls(module, props, cfgWrap);
+    } else {
+      cfgCard.style.display = "none";
+      cfgWrap = null;
+    }
     // stage + props (stage skipped headless — props + sidebar still render)
     if (ctx) {
       try {
@@ -182,7 +337,12 @@ function main() {
 
   function apply(next, push) {
     state = next;
-    if (push) history.pushState(state, "", encodeUrlPath(state) || location.pathname);
+    if (push) {
+      const q = encodeUrlPath(state);
+      const c = encodeCfg(cfg);
+      const url = (q || location.pathname) + (c ? (q ? "&" : "?") + "cfg=" + encodeURIComponent(c) : "");
+      history.pushState(state, "", url);
+    }
     render();
   }
 
@@ -193,6 +353,8 @@ function main() {
       const q = decodeUrlPath(location.search);
       state = select(createShowcaseState(), registry, q.file, q.showcase);
     }
+    cfg = decodeCfg(location.search);
+    cfgWrap = null;
     render();
   });
 
@@ -201,4 +363,6 @@ function main() {
   render();
 }
 
-main();
+export { placement, paintStage, STAGE, applyCfg, decodeCfg };
+
+if (typeof window !== "undefined" && typeof document !== "undefined") main();

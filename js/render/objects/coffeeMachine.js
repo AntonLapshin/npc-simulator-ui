@@ -1,40 +1,88 @@
-// render/objects/coffeeMachine.js — coffee machine showcase file.
-import { ell, rrPath, solidBox } from "../../core/utils.js";
+// render/objects/coffeeMachine.js — espresso machine showcase file.
+// FIXED orientation: control panel and brew bay face south. Sits on a
+// counter via `z`.
+import { ell, rrPath } from "../../core/utils.js";
 
 export const CoffeeMachine = {
   name: "coffeeMachine",
   title: "Coffee Machine",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.5, // gallery zoom (scene stays 1:1)
   defaultProps: { asset: "coffeeMachine", x: 0, y: 0, z: 0 },
 
-  draw(c, a) { 
-  const x = a.x, Y = a.y - (a.z || 0);
-  c.fillStyle = "rgba(20,26,48,.22)";
-  rrPath(c, x - 21, Y - 8, 42, 14, 3);
-  c.fill();
-  solidBox(c, x, Y - 4, 42, 24, 40, "#39445f", "#232c42", 5);
-  c.fillStyle = "#8fd3ff";
-  rrPath(c, x - 15, Y - 38, 18, 14, 3);
-  c.fill();
-  c.fillStyle = "rgba(255,255,255,.5)";
-  rrPath(c, x - 13, Y - 36, 5, 10, 2);
-  c.fill();
-  c.fillStyle = "#ff5d7a";
-  ell(c, x + 13, Y - 31, 3.2, 3.2);
-  c.fill();
-  c.fillStyle = "#2ec4a6";
-  ell(c, x + 13, Y - 23, 3.2, 3.2);
-  c.fill();
-  c.fillStyle = "#c8d0e0";
-  rrPath(c, x - 9, Y - 16, 20, 7, 2);
-  c.fill();
-  c.fillStyle = "#6b4a2f";
-  rrPath(c, x - 5, Y - 15, 12, 4, 1.5);
-  c.fill();
-},
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return (a.y || 0) + 2;
-}
+  draw(c, a) {
+    const x = a.x, Y = a.y - (a.z || 0);
+
+    c.fillStyle = "rgba(20,26,48,.22)";
+    rrPath(c, x - 21, Y - 4, 42, 9, 3);
+    c.fill();
+
+    /* body: top face then south face */
+    c.fillStyle = "#39445f";
+    rrPath(c, x - 21, Y - 50, 42, 10, 4);
+    c.fill();
+    c.fillStyle = "rgba(255,255,255,.14)";
+    rrPath(c, x - 18, Y - 48.6, 36, 3, 1.5);
+    c.fill();
+    c.fillStyle = "#232c42";
+    rrPath(c, x - 21, Y - 42, 42, 42, 4);
+    c.fill();
+    c.fillStyle = "rgba(255,255,255,.08)";
+    c.fillRect(x - 21, Y - 42, 3, 42);
+    c.fillStyle = "rgba(0,0,0,.22)";
+    c.fillRect(x + 15, Y - 42, 6, 42);
+
+    /* control strip: display + two lights */
+    c.fillStyle = "#39445f";
+    rrPath(c, x - 17, Y - 39, 34, 10, 2.5);
+    c.fill();
+    c.fillStyle = "#8fd3ff";
+    rrPath(c, x - 14, Y - 37, 16, 6, 1.6);
+    c.fill();
+    c.fillStyle = "rgba(255,255,255,.5)";
+    rrPath(c, x - 12.6, Y - 35.8, 5, 3.6, 1.2);
+    c.fill();
+    c.fillStyle = "#ff5d7a";
+    ell(c, x + 7, Y - 34, 2.6, 2.6);
+    c.fill();
+    c.fillStyle = "#2ec4a6";
+    ell(c, x + 13, Y - 34, 2.6, 2.6);
+    c.fill();
+
+    /* brew bay recess + spout */
+    c.fillStyle = "#161d2e";
+    rrPath(c, x - 13, Y - 27, 26, 17, 2.5);
+    c.fill();
+    c.fillStyle = "#c8d0e0";
+    rrPath(c, x - 5, Y - 27, 10, 5, 1.6);
+    c.fill();
+    c.fillStyle = "#6b4a2f";
+    rrPath(c, x - 1.6, Y - 22.4, 3.2, 3.4, 1);
+    c.fill();
+
+    /* cup under the spout */
+    c.fillStyle = "#f7f4ee";
+    rrPath(c, x - 4.6, Y - 19, 9.2, 8.6, 2);
+    c.fill();
+    c.fillStyle = "rgba(255,255,255,.5)";
+    c.fillRect(x - 3.4, Y - 17.6, 1.6, 6);
+
+    /* drip tray */
+    c.fillStyle = "#c8d0e0";
+    rrPath(c, x - 15, Y - 9.6, 30, 5.4, 2);
+    c.fill();
+    c.strokeStyle = "rgba(60,70,100,.5)";
+    c.lineWidth = 1;
+    for (let i = 0; i < 5; i++) {
+      c.beginPath();
+      c.moveTo(x - 11 + i * 5.5, Y - 8.6);
+      c.lineTo(x - 11 + i * 5.5, Y - 5.4);
+      c.stroke();
+    }
+  },
+
+  sortY(a) {
+    return (a.y || 0) + 2;
+  },
 };

@@ -9,6 +9,7 @@ export const CupRow = {
   title: "Mug Row",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.9, // gallery zoom (scene stays 1:1)
   defaultProps: { asset: "cupRow", x: 0, y: 0, z: 0 },
 
   draw(c, a) { 

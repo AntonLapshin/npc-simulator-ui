@@ -6,6 +6,7 @@ export const DeskSign = {
   title: "Desk Sign",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.7, // gallery zoom (scene stays 1:1)
   defaultProps: { asset: "deskSign", x: 0, y: 0, z: 0, text: "NOAH" },
 
   draw(c, a) { 

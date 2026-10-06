@@ -1,88 +1,85 @@
-// render/objects/sofa.js — sofa showcase file. Rotatable: N/E/S/W.
-//
-// dir = way the sitter faces. Backrest opposite, arms on the two ends.
-// N/S map to the horizontal (down/up) builds, E/W to vertical (left/right).
-import { ellShadow, flatRect, shade, solidBox } from "../../core/utils.js";
-import { normDir, COMPASS_VARIANTS } from "./direction.js";
+// render/objects/sofa.js — three-seater sofa showcase file. FIXED
+// orientation: the sofa always faces south (backrest at the north side,
+// seat + skirt toward the camera). No rotation, no direction variants.
 
-
-
-/** Showcase N/E/S/W → legacy plan-view orientation used by the painter. */
-function toLegacy(compass) {
-  if (compass === "N") return "up";
-  if (compass === "S") return "down";
-  if (compass === "E") return "right";
-  return "left";
-}
+import { ellShadow, flatRect, rrPath, shade, solidBox } from "../../core/utils.js";
 
 export const Sofa = {
   name: "sofa",
   title: "Sofa",
-  supportsDirection: true,
-  variants: COMPASS_VARIANTS,
+  supportsDirection: false,
+  variants: ["Default"],
   defaultProps: {
-  asset: "sofa", x: 0, y: 0, w: 120, d: 60, dir: "S", color: "#9b6cf5",
-},
+    asset: "sofa", x: 0, y: 0, w: 132, d: 62, color: "#9b6cf5",
+  },
 
-  draw(c, a) { 
-  const x = a.x, y = a.y, w = a.w || 120, d = a.d || 60;
-  const dir = toLegacy(normDir(a.dir ?? a.direction, "S"));
-  const col = a.color || "#9b6cf5";
-  const sh = a.sh || 22, bh = a.bh || 48, ah = a.ah || 34, bt = a.bt || 16, at = a.at || 15;
-  const horiz = dir === "down" || dir === "up";
-  ellShadow(c, x, y + d / 2 - 2, w * 0.62, d * 0.52, 0.26);
+  draw(c, a) {
+    const x = a.x, y = a.y, w = a.w || 132, d = a.d || 62;
+    const col = a.color || "#9b6cf5";
+    const sh = a.sh || 22, bh = a.bh || 46, ah = a.ah || 32, bt = a.bt || 15, at = a.at || 16;
+    ellShadow(c, x, y + d / 2 - 2, w * 0.6, d * 0.52, 0.26);
 
-  if (horiz) {
-    const by = dir === "down" ? y - d / 2 + bt / 2 : y + d / 2 - bt / 2;
-    solidBox(c, x, by, w, bt, bh, shade(col, 0.12), shade(col, -0.38), 7);
-  } else {
-    const bx = dir === "right" ? x - w / 2 + bt / 2 : x + w / 2 - bt / 2;
-    solidBox(c, bx, y, bt, d, bh, shade(col, 0.12), shade(col, -0.38), 7);
-  }
-  solidBox(c, x, y, w, d, sh, shade(col, 0.26), shade(col, -0.3), 7);
-  if (horiz) {
-    solidBox(c, x - w / 2 + at / 2, y, at, d, ah, shade(col, 0.02), shade(col, -0.42), 6);
-    solidBox(c, x + w / 2 - at / 2, y, at, d, ah, shade(col, 0.02), shade(col, -0.42), 6);
-  } else {
-    solidBox(c, x, y - d / 2 + at / 2, w, at, ah, shade(col, 0.02), shade(col, -0.42), 6);
-    solidBox(c, x, y + d / 2 - at / 2, w, at, ah, shade(col, 0.02), shade(col, -0.42), 6);
-  }
-  const n = 3, gap = 4;
-  let ax, ay, aw, ah2;
-  if (horiz) {
-    ax = x - w / 2 + at + 3;
-    aw = w - at * 2 - 6;
-    ay = dir === "down" ? y - d / 2 + bt + 3 : y - d / 2 + 3;
-    ah2 = d - bt - 6;
+    /* backrest: top edge + inner (south) face visible above the seat */
+    const by = y - d / 2 + bt / 2;
+    solidBox(c, x, by, w, bt, bh, shade(col, 0.14), shade(col, -0.34), 7);
+    c.fillStyle = "rgba(255,255,255,.13)";
+    rrPath(c, x - w / 2 + 7, by + bt / 2 - bh + 8, w - 14, bh - 22, 5);
+    c.fill();
+
+    /* seat carcass */
+    solidBox(c, x, y, w, d, sh, shade(col, 0.24), shade(col, -0.3), 7);
+
+    /* seat cushions on the seat plane */
+    const n = 3, gap = 4;
+    const ax = x - w / 2 + at + 3;
+    const aw = w - at * 2 - 6;
+    const ay = y - d / 2 + bt - 4;
+    const ah2 = d - bt + 1;
     const cw = (aw - gap * (n - 1)) / n;
     for (let i = 0; i < n; i++) {
-      flatRect(c, ax + i * (cw + gap), ay, cw, ah2, sh, shade(col, 0.36), 6);
-      flatRect(c, ax + i * (cw + gap) + 4, ay + 4, cw - 8, 6, sh, "rgba(255,255,255,.22)", 3);
+      const cx = ax + i * (cw + gap);
+      flatRect(c, cx, ay, cw, ah2, sh, shade(col, 0.34), 6);
+      // top highlight along the cushion's back edge
+      c.fillStyle = shade(col, 0.46);
+      rrPath(c, cx + 4, ay + 3, cw - 8, 5, 2.5);
+      c.fill();
+      c.strokeStyle = "rgba(0,0,0,.10)";
+      c.lineWidth = 1;
+      rrPath(c, cx, ay, cw, ah2, 6);
+      c.stroke();
     }
-  } else {
-    ay = y - d / 2 + at + 3;
-    ah2 = d - at * 2 - 6;
-    ax = dir === "right" ? x - w / 2 + bt + 3 : x - w / 2 + 3;
-    aw = w - bt - 6;
-    const cd = (ah2 - gap * (n - 1)) / n;
-    for (let i = 0; i < n; i++) {
-      flatRect(c, ax, ay + i * (cd + gap), aw, cd, sh, shade(col, 0.36), 6);
-      flatRect(c, ax + 4, ay + i * (cd + gap) + 4, 6, cd - 8, sh, "rgba(255,255,255,.22)", 3);
-    }
-  }
-  const pz = bh - 14;
-  for (let i = 0; i < 2; i++) {
-    if (horiz) {
-      const py = dir === "down" ? y - d / 2 + bt + 2 : y + d / 2 - bt - 16;
-      flatRect(c, x - w / 4 - 8 + i * (w / 2 - 4), py, 20, 15, pz, i ? "#ffb648" : "#2ec4a6", 5);
-    } else {
-      const px = dir === "right" ? x - w / 2 + bt + 2 : x + w / 2 - bt - 17;
-      flatRect(c, px, y - d / 4 - 10 + i * (d / 2 - 6), 15, 22, pz, i ? "#ffb648" : "#2ec4a6", 5);
-    }
-  }
-},
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return a.y + (a.d || 0) / 2;
-}
+
+    /* arms */
+    solidBox(c, x - w / 2 + at / 2, y, at, d, ah, shade(col, 0.06), shade(col, -0.42), 6);
+    solidBox(c, x + w / 2 - at / 2, y, at, d, ah, shade(col, 0.06), shade(col, -0.42), 6);
+    c.fillStyle = "rgba(255,255,255,.16)";
+    rrPath(c, x - w / 2 + 3, y - d / 2 - ah + 3, at - 6, d - 6, 4);
+    c.fill();
+    rrPath(c, x + w / 2 - at + 3, y - d / 2 - ah + 3, at - 6, d - 6, 4);
+    c.fill();
+
+    /* throw pillows leaning on the backrest */
+    pillow(c, x - w / 4 - 4, y - d / 2 + bt - 2, bh - 16, -0.16, "#2ec4a6");
+    pillow(c, x + w / 4 + 4, y - d / 2 + bt - 2, bh - 16, 0.16, "#ffb648");
+  },
+
+  sortY(a) {
+    return a.y + (a.d || 62) / 2;
+  },
 };
+
+function pillow(c, x, y, z, rot, col) {
+  c.save();
+  c.translate(x, y - z);
+  c.rotate(rot);
+  c.fillStyle = col;
+  rrPath(c, -10, -9, 20, 18, 5);
+  c.fill();
+  c.fillStyle = "rgba(255,255,255,.28)";
+  rrPath(c, -10, -9, 20, 4, 2);
+  c.fill();
+  c.fillStyle = "rgba(0,0,0,.12)";
+  rrPath(c, -10, 5, 20, 4, 2);
+  c.fill();
+  c.restore();
+}

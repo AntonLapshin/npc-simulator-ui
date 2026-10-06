@@ -6,6 +6,7 @@ export const Papers = {
   title: "Papers",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.9, // gallery zoom (scene stays 1:1)
   defaultProps: { asset: "papers", x: 0, y: 0, z: 0 },
 
   draw(c, a) { 

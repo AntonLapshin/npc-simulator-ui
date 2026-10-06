@@ -6,6 +6,7 @@ export const Clock = {
   title: "Clock",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.6, // gallery zoom (scene stays 1:1)
   defaultProps: { asset: "clock", id: "clock", x: 0, y: 0, r: 15 },
 
   draw(c, d) { 

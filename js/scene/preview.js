@@ -2,16 +2,14 @@
 //
 // Standalone visual workbench: pick a registered scene, move characters
 // around by facing/emotion, toggle sample bubbles — no engine, no network.
-// Selection deep-links via ?scene=..&char=..&dir=..&emotion=.. so a visual
+// Selection deep-links via ?scene=..&char=..&pose=..&emotion=.. so a visual
 // state can be shared as a URL, exactly like the object gallery.
 
 import { SceneRenderer } from "../render/sceneRenderer.js";
 import { getScene, sceneIds, OFFICE_FLOOR3_ID } from "../data/scenes/index.js";
 import { SAMPLE_CHARS, SAMPLE_BUBBLES, EMPTY_STUDIO_SCENE, SAMPLE_GENERIC_OBJECTS } from "../data/samples.js";
-import { COMPASS_VARIANTS } from "../render/objects/direction.js";
+import { POSES, POSE_TITLES } from "../render/character.js";
 
-const TO_PLAN = { N: "up", E: "right", S: "down", W: "left" };
-const TO_COMPASS = { up: "N", right: "E", down: "S", left: "W" };
 const EMOTIONS = [
   "neutral", "happy", "nervous", "sad", "excited",
   "surprised", "thinking", "confident", "shy", "proud", "annoyed",
@@ -34,7 +32,7 @@ function decodeSelection(search) {
   return {
     scene: q.get("scene"),
     char: q.get("char"),
-    dir: q.get("dir"),
+    pose: q.get("pose"),
     emotion: q.get("emotion"),
     bubbles: q.get("bubbles"),
   };
@@ -44,7 +42,7 @@ function encodeSelection(sel) {
   const q = new URLSearchParams();
   if (sel.scene) q.set("scene", sel.scene);
   if (sel.char) q.set("char", sel.char);
-  if (sel.dir) q.set("dir", sel.dir);
+  if (sel.pose) q.set("pose", sel.pose);
   if (sel.emotion) q.set("emotion", sel.emotion);
   if (sel.bubbles === "0") q.set("bubbles", "0");
   const s = q.toString();
@@ -55,7 +53,7 @@ function main() {
   const canvas = document.getElementById("scene");
   const sceneSel = document.getElementById("pvScene");
   const charSel = document.getElementById("pvChar");
-  const dirSeg = document.getElementById("pvDir");
+  const poseSel = document.getElementById("pvPose");
   const emoSel = document.getElementById("pvEmotion");
   const propsEl = document.getElementById("pvProps");
   const countEl = document.getElementById("pvCount");
@@ -69,7 +67,7 @@ function main() {
   const initial = decodeSelection(location.search);
   let sceneEntry = sceneById(initial.scene) || sceneById(OFFICE_FLOOR3_ID) || sceneById(allSceneIds()[0]);
   let selChar = chars.find((c) => c.id === initial.char) || chars[0];
-  if (initial.dir && TO_PLAN[initial.dir]) selChar.dir = TO_PLAN[initial.dir];
+  if (initial.pose && POSES.includes(initial.pose)) selChar.pose = initial.pose;
   if (initial.emotion && EMOTIONS.includes(initial.emotion)) selChar.emotion = initial.emotion;
   let showBubbles = initial.bubbles !== "0";
 
@@ -100,11 +98,19 @@ function main() {
   }
   emoSel.value = selChar.emotion;
 
+  for (const p of POSES) {
+    const opt = document.createElement("option");
+    opt.value = p;
+    opt.textContent = POSE_TITLES[p] || p;
+    poseSel.append(opt);
+  }
+  poseSel.value = selChar.pose || "stand";
+
   function syncUrl() {
     const sel = {
       scene: sceneEntry.id,
       char: selChar.id,
-      dir: TO_COMPASS[selChar.dir] || "S",
+      pose: selChar.pose || "stand",
       emotion: selChar.emotion,
       bubbles: showBubbles ? "1" : "0",
     };
@@ -123,19 +129,8 @@ function main() {
   }
 
   function render() {
-    dirSeg.innerHTML = "";
-    for (const v of COMPASS_VARIANTS) {
-      const b = document.createElement("button");
-      b.textContent = v;
-      b.className = TO_PLAN[v] === selChar.dir ? "on" : "";
-      b.setAttribute("role", "tab");
-      b.addEventListener("click", () => {
-        selChar.dir = TO_PLAN[v];
-        syncUrl();
-        render();
-      });
-      dirSeg.append(b);
-    }
+    poseSel.value = selChar.pose || "stand";
+    emoSel.value = selChar.emotion;
     countEl.textContent = `${chars.length} characters · ${sceneEntry.name}`;
     propsEl.textContent = JSON.stringify(selChar, null, 2);
     renderer.render(snapshot());
@@ -151,11 +146,17 @@ function main() {
   charSel.addEventListener("change", () => {
     selChar = chars.find((c) => c.id === charSel.value) || selChar;
     emoSel.value = selChar.emotion;
+    poseSel.value = selChar.pose || "stand";
     syncUrl();
     render();
   });
   emoSel.addEventListener("change", () => {
     selChar.emotion = emoSel.value;
+    syncUrl();
+    render();
+  });
+  poseSel.addEventListener("change", () => {
+    selChar.pose = poseSel.value;
     syncUrl();
     render();
   });

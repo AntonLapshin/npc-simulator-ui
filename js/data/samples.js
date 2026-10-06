@@ -3,33 +3,34 @@
 // Plain renderer input, deliberately engine-free: no World, Actor or
 // Scenario shapes here — just scene ids, character paint descriptors and
 // bubbles as documented in js/render/index.js. Edit these to try new looks.
+// Characters never rotate: everyone faces south. `pose` drives the body.
 
 /** Sample cast: visual actors in 1040×730 view coordinates. */
 export const SAMPLE_CHARS = [
   {
-    id: "noah", name: "Noah", color: "#4f7cff", prop: "bag",
+    id: "noah", name: "Noah", color: "#4f7cff", prop: null,
     look: { skin: "#f2cba6", skin2: "#e0b189", hair: "#3d2a20", hairStyle: "short", shirt: "#7fb6ff", shirt2: "#5b95e8", pants: "#39435c", shoes: "#1e2434" },
-    x: 500, y: 600, dir: "up", emotion: "nervous", visible: true, isUser: true,
+    x: 500, y: 600, pose: "stand", emotion: "nervous", visible: true, isUser: true,
   },
   {
-    id: "maya", name: "Maya", color: "#2ec4a6", prop: null,
+    id: "maya", name: "Maya", color: "#2ec4a6", prop: "laptop",
     look: { skin: "#c98a5e", skin2: "#b0744a", hair: "#22191a", hairStyle: "bun", shirt: "#2ec4a6", shirt2: "#1f9e85", pants: "#2b3550", shoes: "#1a2032" },
-    x: 660, y: 216, dir: "down", emotion: "neutral", visible: true, isUser: false,
+    x: 660, y: 214, pose: "sit", emotion: "neutral", visible: true, isUser: false,
   },
   {
     id: "priya", name: "Priya", color: "#9b6cf5", prop: null,
     look: { skin: "#e2a97c", skin2: "#c98f63", hair: "#2b1f22", hairStyle: "long", shirt: "#9b6cf5", shirt2: "#7d51d3", pants: "#3a3357", shoes: "#221d33" },
-    x: 296, y: 278, dir: "right", emotion: "happy", visible: true, isUser: false,
+    x: 352, y: 372, pose: "stand", emotion: "happy", visible: true, isUser: false,
   },
   {
-    id: "lena", name: "Lena", color: "#ffb648", prop: null,
+    id: "lena", name: "Lena", color: "#ffb648", prop: "cup",
     look: { skin: "#ffe0cb", skin2: "#eec7ae", hair: "#b5502f", hairStyle: "ponytail", shirt: "#ffb648", shirt2: "#e2952c", pants: "#4a6fa5", shoes: "#26313f" },
-    x: 664, y: 436, dir: "down", emotion: "neutral", visible: true, isUser: false,
+    x: 860, y: 434, pose: "sit", emotion: "happy", visible: true, isUser: false,
   },
   {
     id: "dana", name: "Dana", color: "#ff5d7a", prop: "cup",
     look: { skin: "#8d5a3b", skin2: "#78492e", hair: "#191315", hairStyle: "curly", shirt: "#ff5d7a", shirt2: "#dd3f5e", pants: "#2c3444", shoes: "#171d29" },
-    x: 424, y: 214, dir: "down", emotion: "happy", visible: true, isUser: false,
+    x: 424, y: 240, pose: "stand", emotion: "happy", visible: true, isUser: false,
   },
 ];
 

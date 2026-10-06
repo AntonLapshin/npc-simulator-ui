@@ -1,75 +1,67 @@
-// tests/render.mjs — visual check: boots scene.html in jsdom *with* the
-// node-canvas backend and saves canvas frames to PNG so the 2.5D scene can
-// be inspected without a browser.
+// tests/render.mjs — visual check without a browser: boots the real
+// SceneRenderer in Node (jsdom provides the DOM, the `canvas` package
+// provides 2D contexts) and saves scene frames as PNG.
 //
-// Usage: npm i --no-save jsdom canvas && npm start &
-//        node tests/render.mjs   (serves scene.html from the static server)
-// Output: tests/out/scene-boot.png, tests/out/scene-noah-n.png
-//
-// The page is plain ES modules (no bundle step in this project); jsdom
-// loads them over HTTP from the local static server.
+// Usage: npm i --no-save jsdom canvas && npm run test:render
+// Output: tests/out/scene-boot.png, tests/out/scene-poses.png
 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { JSDOM, VirtualConsole } from "jsdom";
+import { JSDOM } from "jsdom";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const BASE = process.env["UI_BASE_URL"] || "http://localhost:8123";
-const sleep = (ms) => new Promise((r) => setTimeout(ms));
 
-async function open(path) {
-  const errors = [];
-  const virtualConsole = new VirtualConsole()
-    .on("jsdomError", (e) => errors.push(String(e.message || e)))
-    .on("error", (...a) => errors.push(a.join(" ")))
-    .on("warn", () => {});
-  const dom = await JSDOM.fromURL(BASE + path, {
-    runScripts: "dangerously",
-    pretendToBeVisual: true,
-    virtualConsole,
-  });
-  return { dom, errors };
-}
+const dom = new JSDOM(`<!doctype html><html><body>
+<canvas id="scene" style="width:1040px"></canvas>
+</body></html>`, { pretendToBeVisual: true });
+global.window = dom.window;
+global.document = dom.window.document;
 
-async function saveFrame(document, name) {
-  const canvas = document.getElementById("scene");
-  const dataUrl = canvas.toDataURL("image/png");
-  const b64 = dataUrl.split(",")[1];
+const { SceneRenderer } = await import("../js/render/sceneRenderer.js");
+const { getScene } = await import("../js/data/scenes/index.js");
+const { SAMPLE_CHARS, SAMPLE_BUBBLES, SAMPLE_GENERIC_OBJECTS } = await import("../js/data/samples.js");
+const { viewOptions } = await import("../js/render/viewOptions.js");
+
+async function saveFrame(canvas, name) {
   const out = join(ROOT, "tests/out", name);
   await mkdir(join(ROOT, "tests/out"), { recursive: true });
-  await writeFile(out, Buffer.from(b64, "base64"));
-  console.log(`saved ${out} (${canvas.width}×${canvas.height})`);
+  await writeFile(out, Buffer.from(canvas.toDataURL("image/png").split(",")[1], "base64"));
+  console.log(`saved tests/out/${name} (${canvas.width}×${canvas.height})`);
 }
 
-console.log(`render visual check (jsdom + canvas ← ${BASE})`);
+console.log("render visual check (jsdom + canvas, no server needed)");
 
-{
-  const { dom, errors } = await open("/scene.html");
-  const { document } = dom.window;
-  await sleep(900); // boot + fonts + first frame
-  await saveFrame(document, "scene-boot.png");
-  const fatal = errors.filter((e) => !/Could not parse CSS/i.test(e));
-  if (fatal.length) {
-    console.error("jsdom errors:", fatal.join("\n"));
-    process.exitCode = 1;
-  } else {
-    console.log("scene.html OK — no runtime errors");
-  }
-  dom.window.close();
-}
+const canvas = document.getElementById("scene");
+const renderer = new SceneRenderer(canvas, getScene("office_floor3"));
+renderer.resize();
+viewOptions.showNames = true;
 
-{
-  const { dom, errors } = await open("/scene.html?scene=office_floor3&char=noah&dir=N&emotion=happy");
-  const { document } = dom.window;
-  await sleep(900);
-  await saveFrame(document, "scene-noah-n.png");
-  const fatal = errors.filter((e) => !/Could not parse CSS/i.test(e));
-  if (fatal.length) {
-    console.error("jsdom errors:", fatal.join("\n"));
-    process.exitCode = 1;
-  } else {
-    console.log("scene.html deep-link OK — no runtime errors");
-  }
-  dom.window.close();
-}
+const chars = SAMPLE_CHARS.map((c) => ({ ...c, look: { ...c.look } }));
+const byId = new Map(chars.map((c) => [c.id, c]));
+const bubbles = SAMPLE_BUBBLES.filter((b) => byId.has(b.actorId)).map((b) => {
+  const v = byId.get(b.actorId);
+  return { x: v.x, y: v.y, text: b.text, kind: b.kind, name: v.name, color: v.color };
+});
+
+renderer.render({ chars, bubbles, objects: SAMPLE_GENERIC_OBJECTS });
+await saveFrame(canvas, "scene-boot.png");
+
+/* every pose at once, spread across the floor */
+const poseRow = ["stand", "sit", "kneel", "doggy", "prone"].map((pose, i) => ({
+  ...chars[i % chars.length],
+  id: "pose_" + pose,
+  name: pose,
+  isUser: false,
+  pose,
+  prop: null,
+  emotion: "happy",
+  x: 200 + i * 160,
+  y: 620,
+}));
+// seated figures need a chair under them: put them on the desk-pod chairs
+poseRow[1].x = 660; poseRow[1].y = 434;
+renderer.render({ chars: poseRow, bubbles: [], objects: [] });
+await saveFrame(canvas, "scene-poses.png");
+
+console.log("scene frames OK — no runtime errors");

@@ -4,23 +4,61 @@ Standalone visual scene library for the NPC simulator: 2.5D office renderer,
 object/character painters, object gallery and scene preview. It knows nothing
 about the simulator engine — no `World`, `Actor` or `Scenario` types, no
 network, no LLM. Everything is raw visual input: scenes, coordinates,
-variants, directions, characters.
+variants, characters.
 
 Work here when you want to focus on visuals only: polish objects, characters
 and scene variants, or add new objects.
 
 ```bash
 npm start          # static server → http://localhost:8123/
-npm test           # gallery registry + every object·variant draws (stub canvas)
+npm test           # gallery registry + every object·pose draws (stub canvas)
 npm run test:render  # real canvas frames → tests/out/*.png
-                     # (needs: npm i --no-save jsdom canvas; server running)
+                     # (needs: npm i --no-save jsdom canvas)
 ```
 
 | page | purpose |
 |---|---|
 | `index.html` | landing: links to both views |
-| `showcase.html` | isolated object gallery (Storybook-style, `?file=..&showcase=..`) |
-| `scene.html` | full-scene preview from raw JSON (`?scene=..&char=..&dir=..&emotion=..`) |
+| `showcase.html` | isolated object gallery (Storybook-style, `?file=..&showcase=..&cfg=..`) |
+| `scene.html` | full-scene preview from raw JSON (`?scene=..&char=..&pose=..&emotion=..`) |
+
+---
+
+## The view: 3/4 top-down, everything faces south
+
+The projection is plan + vertical extrusion ("gem-flat 2.5D"): the floor maps
+1:1 to screen, height extrudes straight up, so every object shows its top
+face plus its **south** face. To keep the world readable nothing rotates:
+
+* **Every object is built in one fixed orientation.** Chairs, sofas, desks,
+  counters, cabinets… all face south — the camera looks at their front.
+  Legacy `dir` fields in scene data are accepted and ignored.
+* **The laptop is the only north-facing object:** a person sits south of it
+  in a desk chair (facing south at the desk… see the office scene), so the
+  camera always sees the **lid back** + hinge + a sliver of the base.
+* **Characters always face south (down).** There is no character rotation;
+  body language comes from *poses* instead.
+
+### Character poses
+
+| pose | read |
+|---|---|
+| `stand` | upright, front view |
+| `sit` | seated on a chair (seat plane `y-26`); the chair is a scene asset — the showcase composes one automatically |
+| `kneel` | seiza on the floor, profile, always faces **left** |
+| `doggy` | on hands & knees, profile, always faces **left** |
+| `prone` | lying face down, top view, head turned **left** (cheek shows) |
+
+Seated characters sort after their chair in painters order, so they paint
+in front of the backrest.
+
+### Character configuration (showcase)
+
+The gallery's Character page exposes a config panel (deep-linked via `cfg`):
+**pose · emotion · skin · hair style · hair color · pants · shoes ·
+hold cup · hold laptop · speech bubble**. A held laptop shows its lid back
+(laptops face north); with both props on, the laptop is held and the mug
+stands on the floor. `speech` paints a `drawBubble` say-bubble over the head.
 
 ---
 
@@ -31,7 +69,7 @@ import { SceneRenderer, getScene } from "./js/render/index.js";
 
 const renderer = new SceneRenderer(canvas, getScene("office_floor3"));
 renderer.render({
-  chars: [{ id, name, color, look, prop, x, y, dir, emotion, visible, isUser }],
+  chars: [{ id, name, color, look, prop, x, y, pose, emotion, visible, isUser }],
   bubbles: [{ x, y, text, kind /* "say" | "thought" */, name, color, alpha? }],
   objects: [{ id, name, x, y, w, h, passable, blocksVision }], // fallback boxes
 });
@@ -40,9 +78,10 @@ renderer.setNames(on);   // name plates
 renderer.setZones(on);   // zone overlays (repaints the cached background)
 ```
 
-* `dir` is a plan facing: `"up" | "down" | "left" | "right"`. The gallery's
-  `N / E / S / W` variants map onto these (`N→up, E→right, S→down, W→left` —
-  see `js/render/objects/direction.js`).
+* `pose` is one of `stand | sit | kneel | doggy | prone` (default `stand`).
+  A legacy `dir` field is tolerated and ignored — nobody rotates.
+* `prop` is `"cup" | "laptop" | null` (floor poses put the prop on the floor
+  in front of the character).
 * `look` is `{ skin, skin2, hair, hairStyle, shirt, shirt2, pants, shoes }`.
 * A scene is `{ meta, floor, corridor, walls, windows, door, wallDecor,
   floorDecals, lightPatches, assets }`. Coordinates are 1040×730 view units
@@ -65,13 +104,13 @@ js/
   render/
     sceneRenderer.js   canvas host, resize, frame pipeline, generic fallback
     background.js      cached background layer (composes objects/* painters)
-    character.js       bodies, hair, emotion faces, mood FX, name plates
+    character.js       poses, faces per emotion, hair, mood FX, name plates
     bubble.js          speech & thought bubbles with collision placement
     avatar.js          small portraits (reuses character.js)
     assets.js          back-compat re-export (see objects/)
     viewOptions.js     Names / Zones toggles
     objects/           ONE FILE PER OBJECT (gallery source of truth)
-      direction.js     shared N/E/S/W normalizer + COMPASS_VARIANTS
+      direction.js     legacy N/E/S/W normalizer (kept for old world data)
       index.js         registry: OBJECTS, ASSET_DRAW, showcaseFiles, variantProps
       desk.js …        one module per object (see "Adding an object")
   data/
@@ -79,12 +118,12 @@ js/
     scenes/index.js          scene registry: getScene(id)
     samples.js               editable raw cast/bubbles for scene.html
   showcase/            gallery app (core: pure registry/URL codec, no DOM)
-  scene/preview.js     scene.html workbench (scene/char/dir/emotion controls)
+  scene/preview.js     scene.html workbench (scene/char/pose/emotion controls)
 styles/  base.css (tokens) · showcase.css (gallery) · scene.css (preview)
 tools/serve.mjs        zero-dependency static server
 tests/
-  showcase.mjs         registry, URL codec, every object·variant draws (stub ctx)
-  render.mjs           visual check: scene.html frames saved as PNG
+  showcase.mjs         registry, URL codec, every object·pose draws (stub ctx)
+  render.mjs           visual check: scene frames saved as PNG (jsdom+canvas)
 ```
 
 ## Adding an object
@@ -98,16 +137,18 @@ tests/
      name: "thing", title: "Thing",
      supportsDirection: false, variants: ["Default"],
      defaultProps: { asset: "thing", id: "thing", x: 0, y: 0 /* … */ },
-     draw(c, p) { /* paint centered on p.x/p.y */ },
+     draw(c, p) { /* paint centered on p.x/p.y, front face south */ },
      sortY(p) { return p.y; }, // painters order: southern-most floor edge wins
+     showcaseScale: 1.5, // optional gallery zoom (scene renders stay 1:1)
    };
    ```
-   Rotatable objects set `supportsDirection: true`, `variants:
-   COMPASS_VARIANTS` and read `p.dir` (`N/E/S/W`, via `normDir`).
+   **Draw it facing south** — top face + south face, no rotation, no
+   direction variants. (North-facing lids are a laptop privilege.)
 2. Register it in `js/render/objects/index.js` (`OBJECT_MODULES`, sidebar
    order: furniture → scenery → character).
 3. Open `showcase.html` — the gallery picks it up automatically, including
-   the `N / E / S / W` segmented control and `?file=..&showcase=..` links.
+   `?file=..&showcase=..` deep links. Objects with a single `Default`
+   variant show a "fixed view — no rotation" note instead of a switcher.
 4. Run `npm test` — every variant is drawn with a stub context.
 
 ## Adding a scene variant
@@ -115,7 +156,8 @@ tests/
 Scene files are pure data (no painter code): copy the shape of
 `js/data/scenes/officeFloor3.js`, register the id in `js/data/scenes/index.js`
 (`SCENES`), and it appears in the `scene.html` selector. New scenes should
-reuse the existing object `asset` names so no new painters are needed.
+reuse the existing object `asset` names so no new painters are needed, and
+place sitters **north** of their desk/chair facing south.
 
 ## Relation to npc-simulator
 

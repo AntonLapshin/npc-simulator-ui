@@ -6,6 +6,7 @@ export const Poster = {
   title: "Poster",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.5, // gallery zoom (scene stays 1:1)
   defaultProps: {
   asset: "poster", id: "poster", x: 0, y: 0, w: 36, h: 46, color: "#ff5d7a",
 },

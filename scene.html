@@ -33,15 +33,16 @@
       <select id="pvEmotion"></select>
     </label>
 
-    <div class="pv-label">Direction</div>
-    <div class="seg" id="pvDir" role="tablist" aria-label="Direction"></div>
+    <label class="pv-label">Pose
+      <select id="pvPose"></select>
+    </label>
 
     <div class="card pv-propscard">
       <div class="pane-h">Selected character · raw renderer input</div>
       <pre class="json" id="pvProps"></pre>
       <div class="hint">
-        Deep-linkable: scene, character, direction and emotion live in
-        <kbd>?scene=..&amp;char=..&amp;dir=..&amp;emotion=..</kbd>.
+        Deep-linkable: scene, character, pose and emotion live in
+        <kbd>?scene=..&amp;char=..&amp;pose=..&amp;emotion=..</kbd>. Characters always face south.
         Looks live in <kbd>js/data/samples.js</kbd> — edit and refresh.
       </div>
     </div>

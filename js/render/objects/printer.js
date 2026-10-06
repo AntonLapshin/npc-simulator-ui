@@ -6,6 +6,7 @@ export const Printer = {
   title: "Printer",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.2, // gallery zoom (scene stays 1:1)
   defaultProps: {
   asset: "printer", x: 0, y: 0, w: 92, d: 64, h: 46, color: "#dfe5f0",
 },

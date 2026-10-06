@@ -6,6 +6,7 @@ export const Cabinet = {
   title: "Cabinet",
   supportsDirection: false,
   variants: ["Default"],
+  showcaseScale: 1.1, // gallery zoom (scene stays 1:1)
   defaultProps: {
   asset: "cabinet", x: 0, y: 0, w: 190, d: 60, h: 68, color: "#5b6b8c",
 },

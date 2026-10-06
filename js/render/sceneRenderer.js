@@ -122,7 +122,7 @@ export class SceneRenderer {
       (state.objects || []).forEach((o) => {
         if (!this.knownObjectIds.has(o.id)) list.push({ k: o.y + (o.h || 0) / 2, t: "o", o });
       });
-      state.chars.filter((c) => c.visible !== false).forEach((c) => list.push({ k: c.y, t: "c", o: c }));
+      state.chars.filter((c) => c.visible !== false).forEach((c) => list.push({ k: charSortY(c), t: "c", o: c }));
       list.sort((p, q) => p.k - q.k);
 
       list.forEach((it) => {
@@ -155,6 +155,15 @@ export class SceneRenderer {
       console.error("[render]", err);
     }
   }
+}
+
+/**
+ * Painters-order key for characters: a seated figure must paint AFTER the
+ * chair it sits on (the chair's south edge is ~y+16), everyone else sorts
+ * by their floor line.
+ */
+function charSortY(c) {
+  return (c.y || 0) + (c.pose === "sit" ? 18 : 0);
 }
 
 /**
