@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scene Preview — NPC Simulator UI</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/outfit/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/outfit/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/outfit/800.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono/400.css">
+<link rel="stylesheet" href="styles/base.css">
+<link rel="stylesheet" href="styles/scene.css">
+</head>
+<body>
+<div class="pv-app">
+  <aside class="pv-side">
+    <div class="pv-brand">
+      <div class="logo"></div>
+      <div>
+        <h1>Scene Preview</h1>
+        <p>NPC Simulator UI · raw scene input, no engine</p>
+      </div>
+    </div>
+    <div class="pv-count" id="pvCount">—</div>
+
+    <label class="pv-label">Scene
+      <select id="pvScene"></select>
+    </label>
+    <label class="pv-label">Character
+      <select id="pvChar"></select>
+    </label>
+    <label class="pv-label">Emotion
+      <select id="pvEmotion"></select>
+    </label>
+
+    <div class="pv-label">Direction</div>
+    <div class="seg" id="pvDir" role="tablist" aria-label="Direction"></div>
+
+    <div class="card pv-propscard">
+      <div class="pane-h">Selected character · raw renderer input</div>
+      <pre class="json" id="pvProps"></pre>
+      <div class="hint">
+        Deep-linkable: scene, character, direction and emotion live in
+        <kbd>?scene=..&amp;char=..&amp;dir=..&amp;emotion=..</kbd>.
+        Looks live in <kbd>js/data/samples.js</kbd> — edit and refresh.
+      </div>
+    </div>
+    <div class="pv-foot"><a href="index.html">← all views</a> · <a href="showcase.html">object gallery →</a></div>
+  </aside>
+
+  <main class="pv-main">
+    <div class="card">
+      <div class="stage" id="stage">
+        <canvas id="scene"></canvas>
+        <div class="hud-right">
+          <div class="toggle on" id="tgNames">Names</div>
+          <div class="toggle on" id="tgBubbles">Bubbles</div>
+          <div class="toggle on" id="tgZones">Zones</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="js/scene/preview.js"></script>
+</body>
+</html>

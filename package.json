@@ -1,0 +1,13 @@
+{
+  "name": "npc-simulator-ui",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone visual scene UI for the NPC simulator — objects, characters, scene renderer, showcase + scene preview. Renders raw scene/character JSON, no engine knowledge.",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node tests/showcase.mjs",
+    "test:showcase": "node tests/showcase.mjs",
+    "test:render": "node tests/render.mjs"
+  }
+}
