@@ -16,14 +16,14 @@ export const Sofa = {
   draw(c, a) {
     const x = a.x, y = a.y, w = a.w || 132, d = a.d || 62;
     const col = a.color || "#9b6cf5";
-    const sh = a.sh || 22, bh = a.bh || 46, ah = a.ah || 32, bt = a.bt || 15, at = a.at || 16;
+    const sh = a.sh || 22, bh = a.bh || 34, ah = a.ah || 26, bt = a.bt || 15, at = a.at || 16;
     ellShadow(c, x, y + d / 2 - 2, w * 0.6, d * 0.52, 0.26);
 
     /* backrest: top edge + inner (south) face visible above the seat */
     const by = y - d / 2 + bt / 2;
     solidBox(c, x, by, w, bt, bh, shade(col, 0.14), shade(col, -0.34), 7);
     c.fillStyle = "rgba(255,255,255,.13)";
-    rrPath(c, x - w / 2 + 7, by + bt / 2 - bh + 8, w - 14, bh - 22, 5);
+    rrPath(c, x - w / 2 + 7, by + bt / 2 - bh + 2, w - 14, 8, 4);
     c.fill();
 
     /* seat carcass */

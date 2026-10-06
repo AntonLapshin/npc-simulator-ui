@@ -1,5 +1,5 @@
 // render/objects/window.js — window showcase file.
-import { linGrad, mulberry, poly, rrPath } from "../../core/utils.js";
+import { linGrad, mulberry, poly } from "../../core/utils.js";
 
 export const Win = {
   name: "window",
@@ -13,7 +13,8 @@ export const Win = {
   draw(c, win) { 
   const x = win.x, y = win.y, w = win.w, h = win.h;
   c.save();
-  rrPath(c, x, y, w, h, 5);
+  c.beginPath();
+  c.rect(x, y, w, h);
   c.clip();
   const sky = linGrad(c, 0, y, 0, y + h, [[0, "#8fd3ff"], [0.55, "#cfe9ff"], [1, "#ffe9c9"]]);
   c.fillStyle = sky || "#bfe4ff";
@@ -41,12 +42,10 @@ export const Win = {
   c.restore();
   c.strokeStyle = "#f7f9fe";
   c.lineWidth = 4;
-  rrPath(c, x, y, w, h, 5);
-  c.stroke();
+  c.strokeRect(x, y, w, h);
   c.strokeStyle = "rgba(60,70,110,.30)";
   c.lineWidth = 1;
-  rrPath(c, x - 2, y - 2, w + 4, h + 4, 6);
-  c.stroke();
+  c.strokeRect(x - 2, y - 2, w + 4, h + 4);
   c.fillStyle = "#f7f9fe";
   c.fillRect(x + w / 2 - 1.5, y, 3, h);
   c.fillStyle = "rgba(255,255,255,.5)";

@@ -16,20 +16,20 @@ export const OFFICE_FLOOR3_SCENE = {
     world: { w: 1040, h: 730 },
   },
   floor: { x: 60, y: 110, w: 920, h: 550, plank: 56, base: "#efe3cf", tone: "#e6d8bf" },
-  corridor: { x: 435, y: 680, w: 130, h: 50, color: "#1b2438" },
+  corridor: { x: 480, y: 680, w: 40, h: 50, color: "#1b2438" },
   walls: [
     { id: "wN", x: 40, y: 90, w: 960, h: 20, height: 70, face: "#dfe5f2", top: "#f4f7fd", layer: "back" },
     { id: "wW", x: 40, y: 90, w: 20, h: 590, height: 70, face: "#d3dae9", top: "#eef2fa", layer: "back" },
     { id: "wE", x: 980, y: 90, w: 20, h: 590, height: 70, face: "#cbd3e4", top: "#e8edf8", layer: "back" },
-    { id: "wSa", x: 40, y: 660, w: 395, h: 20, height: 16, face: "#c4cde0", top: "#e6ebf6", layer: "front" },
-    { id: "wSb", x: 565, y: 660, w: 435, h: 20, height: 16, face: "#c4cde0", top: "#e6ebf6", layer: "front" },
+    { id: "wSa", x: 40, y: 660, w: 440, h: 20, height: 16, face: "#c4cde0", top: "#e6ebf6", layer: "front" },
+    { id: "wSb", x: 520, y: 660, w: 480, h: 20, height: 16, face: "#c4cde0", top: "#e6ebf6", layer: "front" },
   ],
   windows: [
     { id: "win1", wall: "wN", x: 110, y: 50, w: 180, h: 46, view: "city" },
     { id: "win2", wall: "wN", x: 400, y: 50, w: 170, h: 46, view: "city" },
     { id: "win3", wall: "wN", x: 650, y: 50, w: 180, h: 46, view: "hills" },
   ],
-  door: { id: "door1", x: 435, y: 660, w: 130, h: 20, frame: "#8f6b45", label: "ENTRANCE" },
+  door: { id: "door1", x: 480, y: 660, w: 40, h: 20, frame: "#8f6b45", label: "ENTRANCE" },
   wallDecor: [
     { id: "board1", asset: "whiteboard", x: 852, y: 48, w: 132, h: 50, ink: "#4f7cff" },
     { id: "clock1", asset: "clock", x: 333, y: 64, r: 15 },
@@ -37,7 +37,7 @@ export const OFFICE_FLOOR3_SCENE = {
   ],
   floorDecals: [
     { id: "rugLounge", asset: "rug", x: 205, y: 285, w: 290, h: 215, color: "#4f7cff", trim: "#9b6cf5" },
-    { id: "rugEntrance", asset: "rug", x: 500, y: 616, w: 212, h: 76, color: "#2ec4a6", trim: "#ffb648" },
+    { id: "rugEntrance", asset: "rug", x: 500, y: 616, w: 120, h: 76, color: "#2ec4a6", trim: "#ffb648" },
     { id: "zoneDesk", asset: "zone", x: 770, y: 390, w: 400, h: 330, color: "#ffb648", label: "DESK POD · A/B" },
     { id: "zoneLounge", asset: "zone", x: 205, y: 285, w: 300, h: 230, color: "#4f7cff", label: "LOUNGE" },
     { id: "zoneKitchen", asset: "zone", x: 520, y: 170, w: 260, h: 110, color: "#2ec4a6", label: "KITCHEN" },

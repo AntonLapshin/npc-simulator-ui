@@ -28,8 +28,8 @@ export const WaterCooler = {
     rrPath(c, x - w / 2 + 3, ty0 + 3, 6, d - 6, 3);
     c.fill();
 
-    /* bottle: water body + cap, seated on the top face */
-    const bTop = ty0 - 40;
+    /* bottle: water body + cap, seated on the middle of the top face */
+    const bTop = ty0 + d / 2 - 42;
     c.fillStyle = "rgba(140,205,255,.55)";
     rrPath(c, x - 13, bTop, 26, 42, 9);
     c.fill();

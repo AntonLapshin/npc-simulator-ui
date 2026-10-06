@@ -57,16 +57,17 @@ export const CoffeeMachine = {
     c.fillStyle = "#c8d0e0";
     rrPath(c, x - 5, Y - 27, 10, 5, 1.6);
     c.fill();
+    /* coffee stream: spout down into the cup */
     c.fillStyle = "#6b4a2f";
-    rrPath(c, x - 1.6, Y - 22.4, 3.2, 3.4, 1);
+    rrPath(c, x - 1.6, Y - 22.4, 3.2, 8.8, 1);
     c.fill();
 
-    /* cup under the spout */
+    /* cup seated on the drip tray (base tucked behind the tray front) */
     c.fillStyle = "#f7f4ee";
-    rrPath(c, x - 4.6, Y - 19, 9.2, 8.6, 2);
+    rrPath(c, x - 4.6, Y - 14, 9.2, 8.6, 2);
     c.fill();
     c.fillStyle = "rgba(255,255,255,.5)";
-    c.fillRect(x - 3.4, Y - 17.6, 1.6, 6);
+    c.fillRect(x - 3.4, Y - 12.6, 1.6, 6);
 
     /* drip tray */
     c.fillStyle = "#c8d0e0";

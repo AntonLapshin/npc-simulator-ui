@@ -3,9 +3,9 @@
 // of the desk in scenes, facing south; the camera sees the desk's south
 // face, the slab top and the drawer pedestal front).
 
-import { ellShadow, gemBox, rrPath, shade, solidBox } from "../../core/utils.js";
+import { ellShadow, gemBox, rrPath, shade } from "../../core/utils.js";
 
-/** Slab (t) at height h on legs + under-desk drawer pedestal on the right. */
+/** Slab (t) at height h on four simple legs (no drawers). */
 export const Desk = {
   name: "desk",
   title: "Desk",
@@ -37,29 +37,16 @@ export const Desk = {
     c.fillRect(x0 + 14, y0 + 12 - legH, 8, legH);
     c.fillRect(x1 - 22, y0 + 12 - legH, 8, legH);
 
-    /* drawer pedestal (right side), front faces south */
-    const px = x1 - 45, py = y + 2;
-    solidBox(c, px, py, 56, 54, legH, shade(top, -0.04), shade(edge, -0.24), 4);
-    const pfTop = py + 27 - legH;
-    c.fillStyle = "rgba(20,26,48,.16)";
-    c.fillRect(px - 28, pfTop + legH * 0.42, 56, 1);
-    c.fillStyle = "#98a4be";
-    rrPath(c, px - 10, pfTop + legH * 0.52, 20, 3, 1.5);
-    c.fill();
-    rrPath(c, px - 10, pfTop + legH * 0.82, 20, 3, 1.5);
-    c.fill();
-
-    /* front-left leg */
+    /* front legs (left + right), simple square posts */
     c.fillStyle = "#93a0bb";
     c.fillRect(x0 + 14, y1 - 14 - legH, 8, legH);
+    c.fillRect(x1 - 22, y1 - 14 - legH, 8, legH);
     c.fillStyle = "rgba(255,255,255,.22)";
     c.fillRect(x0 + 14, y1 - 14 - legH, 2, legH);
+    c.fillRect(x1 - 22, y1 - 14 - legH, 2, legH);
     c.fillStyle = "#5d6883";
     c.fillRect(x0 + 13, y1 - 17, 10, 3);
-
-    /* modesty rail between leg and pedestal */
-    c.fillStyle = "rgba(120,132,160,.55)";
-    c.fillRect(x0 + 22, y1 - 16 - legH + 4, px - 28 - (x0 + 22), 5);
+    c.fillRect(x1 - 23, y1 - 17, 10, 3);
 
     /* slab */
     gemBox(c, x, y, w, d, h, t, top, shade(edge, -0.1), 8);

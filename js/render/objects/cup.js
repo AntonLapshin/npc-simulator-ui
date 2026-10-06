@@ -15,11 +15,11 @@ export const Cup = {
     c.fillStyle = "rgba(30,25,50,.20)";
     ell(c, x, Y + 1.2, 7.2, 3);
     c.fill();
-    /* handle */
+    /* handle — arc ends tuck under the body so it reads attached */
     c.strokeStyle = "#e2dbcd";
     c.lineWidth = 2;
     c.beginPath();
-    c.arc(x + 5.6, Y - 5.4, 3.4, -1.25, 1.25);
+    c.arc(x + 4.0, Y - 5.4, 3.6, -1.45, 1.45);
     c.stroke();
     /* body: slight taper, rounded bottom */
     c.fillStyle = "#f7f4ee";

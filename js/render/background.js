@@ -42,7 +42,7 @@ export function paintBackground(c, scene, dims) {
     c.fillStyle = cor.color;
     c.fillRect(cor.x, cor.y, cor.w, cor.h);
     c.fillStyle = "rgba(255,255,255,.05)";
-    for (let i = 0; i < 4; i++) c.fillRect(cor.x + 8 + i * 30, cor.y + 6, 18, cor.h - 12);
+    for (let sx = cor.x + 8; sx + 18 <= cor.x + cor.w - 8; sx += 30) c.fillRect(sx, cor.y + 6, 18, cor.h - 12);
     c.fillStyle = "rgba(0,0,0,.5)";
     c.fillRect(cor.x, cor.y, cor.w, 4);
   }

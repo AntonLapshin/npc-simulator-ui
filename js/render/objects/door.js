@@ -7,7 +7,7 @@ export const Door = {
   supportsDirection: false,
   variants: ["Default"],
   defaultProps: {
-  asset: "door", id: "door", x: 0, y: 0, w: 130, h: 20,
+  asset: "door", id: "door", x: 0, y: 0, w: 40, h: 20,
   frame: "#8f6b45", label: "ENTRANCE",
 },
 
@@ -22,21 +22,21 @@ export const Door = {
   }
   c.fillStyle = "#0a0f1c";
   c.fillRect(d.x, d.y + 2, d.w, d.h);
-  const g = linGrad(c, 0, d.y - 46, 0, d.y + d.h, [[0, "rgba(120,150,220,.30)"], [1, "rgba(20,26,44,.9)"]]);
+  const g = linGrad(c, 0, d.y - 56, 0, d.y + d.h, [[0, "rgba(120,150,220,.30)"], [1, "rgba(20,26,44,.9)"]]);
   if (g) {
     c.fillStyle = g;
-    c.fillRect(d.x, d.y - 46, d.w, d.h + 46);
+    c.fillRect(d.x, d.y - 56, d.w, d.h + 56);
   }
   c.fillStyle = d.frame;
-  c.fillRect(d.x - 9, d.y - 50, 9, d.h + 50);
-  c.fillRect(d.x + d.w, d.y - 50, 9, d.h + 50);
-  c.fillRect(d.x - 9, d.y - 56, d.w + 18, 9);
+  c.fillRect(d.x - 6, d.y - 60, 6, d.h + 60);
+  c.fillRect(d.x + d.w, d.y - 60, 6, d.h + 60);
+  c.fillRect(d.x - 6, d.y - 66, d.w + 12, 8);
   c.fillStyle = shade(d.frame, 0.28);
-  c.fillRect(d.x - 9, d.y - 56, d.w + 18, 3);
+  c.fillRect(d.x - 6, d.y - 66, d.w + 12, 3);
   c.fillStyle = "rgba(255,255,255,.55)";
-  c.font = "700 9px Outfit, sans-serif";
+  c.font = "700 8px Outfit, sans-serif";
   c.textAlign = "center";
-  c.fillText(d.label, d.x + d.w / 2, d.y - 62);
+  c.fillText(d.label, d.x + d.w / 2, d.y - 71);
   c.textAlign = "left";
 },
   sortY() { 

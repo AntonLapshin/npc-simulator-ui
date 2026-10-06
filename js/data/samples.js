@@ -56,7 +56,7 @@ export const EMPTY_STUDIO_SCENE = {
     { id: "wE", x: 980, y: 90, w: 20, h: 590, height: 70, face: "#cbd3e4", top: "#e8edf8", layer: "back" },
   ],
   windows: [{ id: "win1", wall: "wN", x: 420, y: 50, w: 200, h: 46, view: "city" }],
-  door: { id: "door1", x: 455, y: 660, w: 130, h: 20, frame: "#8f6b45", label: "ENTRANCE" },
+  door: { id: "door1", x: 500, y: 660, w: 40, h: 20, frame: "#8f6b45", label: "ENTRANCE" },
   wallDecor: [],
   floorDecals: [],
   lightPatches: [{ x: 420, w: 200 }],
