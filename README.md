@@ -16,6 +16,27 @@ npm run test:render  # real canvas frames → tests/out/*.png
                      # (needs: npm i --no-save jsdom canvas)
 ```
 
+## Full-stack start (engine + Ollama + Laya + this UI)
+
+From the sibling `../npc-simulator` checkout, one command boots everything —
+Ollama, `laya-serve`, the engine-backed graphic console (`:8123`), plus this
+project's gallery/preview on `:8124` (a separate port, since the engine
+already owns `:8123`):
+
+```bash
+cd ../npc-simulator && npm start
+# → console : http://localhost:8123/  (real engine: office-anton, ollama/stheno, --debug)
+# → gallery : http://localhost:8124/showcase.html
+# → preview : http://localhost:8124/scene.html
+```
+
+Defaults are `scenarios/office-anton.json --provider ollama
+--model fluffy/l3-8b-stheno-v3.2 --debug`; override with e.g.
+`npm start -- --model huihui_ai/llama3.2-abliterate:3b`,
+`npm start -- --ui-port 8134`, or `--engine-only`. `npm start -- --help`
+lists everything. Details live in `../npc-simulator/README.md`
+("Quick start") and `../npc-simulator/scripts/start.sh`.
+
 | page | purpose |
 |---|---|
 | `index.html` | landing: links to both views |
