@@ -1,11 +1,11 @@
-// showcase/app.js — thin gallery view-model (showcase pattern).
-//
-// Binds the pure core (core.js: registry / select / URL codec) to the DOM:
-// sidebar list, canvas stage, variant segmented control (decor views only —
-// nothing rotates any more), a per-module configuration panel (character:
-// emotion / skin / hair / pants / shoes / pose / speech / held props) and a
-// props readout. Router-agnostic: syncs `?file=..&showcase=..&cfg=..` via
-// window.history + popstate, mirroring AntonLapshin/showcase `useShowcase.ts`.
+// showcase/app.js — gallery view-model: binds the pure core (core.js:
+// registry / select / URL + config codec) and the stage painter (stage.js)
+// to the DOM — sidebar list, canvas stage, variant segmented control (decor
+// views only — nothing rotates any more), a per-module configuration panel
+// (character: emotion / skin / hair / pants / shoes / pose / speech / held
+// props) and a props readout. Router-agnostic: syncs `?file=..&showcase=..`
+// via window.history + popstate, mirroring AntonLapshin/showcase
+// `useShowcase.ts`.
 
 import {
   createShowcaseRegistry,
@@ -13,113 +13,18 @@ import {
   select,
   encodeUrlPath,
   decodeUrlPath,
+  decodeCfg,
+  encodeCfg,
+  applyCfg,
 } from "./core.js";
+import { STAGE, placement, paintStage } from "./stage.js";
 import { showcaseFiles } from "./files.js";
 import { variantProps } from "../render/objects/index.js";
-import { drawBubble } from "../render/bubble.js";
 
-const STAGE = { w: 560, h: 400 };
+// re-exported for tests / embedders (kept working after the stage split)
+export { placement, paintStage, STAGE, applyCfg, decodeCfg };
 
-/** Wall-mounted pieces hang in the upper half; floor pieces stand lower. */
-const WALL_MOUNTED = new Set(["wall", "window", "door", "whiteboard", "clock", "poster"]);
-
-function placement(module, props) {
-  const p = { ...props };
-  if (WALL_MOUNTED.has(module.name)) {
-    const w = p.w || 180;
-    p.x = STAGE.w / 2 - w / 2;
-    // Wall segments paint downward from y; decor hangs near the top.
-    p.y = module.name === "wall" ? 150 : 130;
-    if (module.name === "clock") {
-      p.x = STAGE.w / 2;
-      p.y = 150;
-    }
-    if (module.name === "door") {
-      p.x = STAGE.w / 2 - p.w / 2;
-      p.y = 170;
-    }
-    return p;
-  }
-  if (module.name === "rug" || module.name === "zone") {
-    p.x = STAGE.w / 2;
-    p.y = STAGE.h / 2;
-    return p;
-  }
-  if (module.name === "character") {
-    p.x = STAGE.w / 2;
-    p.y = Math.round(STAGE.h * 0.78);
-    return p;
-  }
-  p.x = STAGE.w / 2;
-  p.y = Math.round(STAGE.h * 0.62);
-  return p;
-}
-
-function paintStage(ctx, module, props) {
-  const { w: W, h: H } = STAGE;
-  ctx.clearRect(0, 0, W, H);
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, "#0d1526");
-  bg.addColorStop(1, "#080d18");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-  // faint studio grid
-  ctx.strokeStyle = "rgba(255,255,255,.045)";
-  ctx.lineWidth = 1;
-  for (let x = 0; x <= W; x += 28) {
-    ctx.beginPath();
-    ctx.moveTo(x + 0.5, 0);
-    ctx.lineTo(x + 0.5, H);
-    ctx.stroke();
-  }
-  for (let y = 0; y <= H; y += 28) {
-    ctx.beginPath();
-    ctx.moveTo(0, y + 0.5);
-    ctx.lineTo(W, y + 0.5);
-    ctx.stroke();
-  }
-  // gallery zoom around the placement anchor (scene renders stay 1:1)
-  const zs = module.showcaseScale || 1;
-  ctx.save();
-  if (zs !== 1) {
-    ctx.translate(props.x, props.y);
-    ctx.scale(zs, zs);
-    ctx.translate(-props.x, -props.y);
-  }
-  // floor line for standing objects (inside the zoom so it stays glued)
-  if (!WALL_MOUNTED.has(module.name) && module.name !== "rug" && module.name !== "zone") {
-    ctx.strokeStyle = "rgba(255,255,255,.12)";
-    ctx.lineWidth = 1.5 / zs;
-    ctx.beginPath();
-    ctx.moveTo(40, props.y + 14.5);
-    ctx.lineTo(W - 40, props.y + 14.5);
-    ctx.stroke();
-  }
-  let stageErr = null;
-  try {
-    module.draw(ctx, props);
-    // optional speech bubble (character config)
-    if (props.speech) {
-      drawBubble(ctx, {
-        x: props.x, y: props.y - (props.pose === "prone" ? 26 : 0),
-        text: props.speechText || "Hi! Nice to meet you.",
-        kind: "say", name: props.name || "NPC", color: props.color || "#4f7cff",
-      }, [], STAGE);
-    }
-  } catch (err) {
-    stageErr = err;
-  }
-  ctx.restore();
-  if (stageErr) {
-    console.error(`[showcase:${module.name}]`, stageErr);
-    ctx.fillStyle = "#ff5d7a";
-    ctx.font = "600 13px Outfit, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(`render error: ${stageErr.message}`, W / 2, H / 2);
-    ctx.textAlign = "left";
-  }
-}
-
+/** Device-pixel-ratio-aware canvas fit (null when there is no 2D context). */
 function fitCanvas(canvas) {
   try {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -135,31 +40,6 @@ function fitCanvas(canvas) {
 }
 
 /* ── configuration panel (character) ─────────────────────────────────── */
-
-function decodeCfg(search) {
-  const q = new URLSearchParams(String(search || "").replace(/^[?#]/, ""));
-  const raw = q.get("cfg");
-  if (!raw) return {};
-  try {
-    const v = JSON.parse(raw);
-    return v && typeof v === "object" ? v : {};
-  } catch {
-    return {};
-  }
-}
-
-function encodeCfg(cfg) {
-  return Object.keys(cfg).length ? JSON.stringify(cfg) : null;
-}
-
-/** Apply stored config values on top of module defaults (in props order). */
-function applyCfg(module, props, cfg) {
-  const controls = module.controls || [];
-  for (const ctl of controls) {
-    if (ctl.key in cfg) ctl.apply(props, cfg[ctl.key]);
-  }
-  return props;
-}
 
 function buildControls(module, cfg, onChange) {
   const wrap = document.createElement("div");
@@ -197,7 +77,7 @@ function buildControls(module, cfg, onChange) {
         b.addEventListener("click", () => onChange(ctl, opt.value));
         box.append(b);
       });
-      row.append(box);
+      row.append(b);
     } else if (ctl.type === "toggle") {
       const b = document.createElement("button");
       b.className = "sc-toggle";
@@ -362,7 +242,5 @@ export function main() {
   (document.fonts?.ready ?? Promise.resolve()).then(() => render()).catch(() => {});
   render();
 }
-
-export { placement, paintStage, STAGE, applyCfg, decodeCfg };
 
 if (typeof window !== "undefined" && typeof document !== "undefined") main();

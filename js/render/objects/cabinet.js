@@ -1,5 +1,6 @@
 // render/objects/cabinet.js — storage cabinet showcase file.
 import { ellShadow, rrPath, shade, solidBox } from "../../core/utils.js";
+import { sortByFootprint } from "./sortY.js";
 
 export const Cabinet = {
   name: "cabinet",
@@ -34,8 +35,5 @@ export const Cabinet = {
     c.fill();
   }
 },
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return a.y + (a.d || 0) / 2;
-}
+  sortY: sortByFootprint(),
 };

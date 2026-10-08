@@ -1,5 +1,6 @@
 // render/objects/wall.js — wall segment showcase file.
 import { linGrad, poly, shade } from "../../core/utils.js";
+import { sortBackdrop } from "./sortY.js";
 
 export const Wall = {
   name: "wall",
@@ -33,7 +34,5 @@ export const Wall = {
   c.lineWidth = 1;
   c.strokeRect(w.x + 0.5, y0 + 0.5, w.w - 1, y1 - y0 - 1);
 },
-  sortY() { 
-  return -Infinity;
-}
+  sortY: sortBackdrop,
 };

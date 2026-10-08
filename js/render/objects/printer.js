@@ -1,5 +1,6 @@
 // render/objects/printer.js — office printer showcase file.
 import { ell, ellShadow, rrPath, solidBox } from "../../core/utils.js";
+import { sortByFootprint } from "./sortY.js";
 
 export const Printer = {
   name: "printer",
@@ -40,8 +41,5 @@ export const Printer = {
   rrPath(c, x - w / 2 + 12, fy0 + 5, 26, 7, 2);
   c.fill();
 },
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return a.y + (a.d || 0) / 2;
-}
+  sortY: sortByFootprint(),
 };

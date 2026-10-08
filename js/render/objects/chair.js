@@ -3,6 +3,7 @@
 // the north side). No rotation, no direction variants.
 
 import { ell, ellShadow, gemBox, rrPath, shade, solidBox } from "../../core/utils.js";
+import { sortByFootprint } from "./sortY.js";
 
 export const Chair = {
   name: "chair",
@@ -73,7 +74,5 @@ export const Chair = {
     }
   },
 
-  sortY(a) {
-    return a.y + (a.d || 32) / 2;
-  },
+  sortY: sortByFootprint(32),
 };

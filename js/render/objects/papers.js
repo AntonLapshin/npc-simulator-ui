@@ -1,5 +1,6 @@
 // render/objects/papers.js — scattered papers showcase file.
 import { rrPath } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Papers = {
   name: "papers",
@@ -40,8 +41,5 @@ export const Papers = {
   c.fillRect(-8, -1, 14, 2);
   c.restore();
 },
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return (a.y || 0) + 2;
-}
+  sortY: sortByAnchorOffset(2),
 };

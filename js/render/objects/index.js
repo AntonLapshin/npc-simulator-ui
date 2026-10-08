@@ -1,11 +1,11 @@
 // render/objects/index.js — object registry (showcase pattern).
 //
-// Mirrors https://github.com/AntonLapshin/showcase: every object file exports
-// one uniquely-named showcase object (single-export pattern — the bundler in
-// tools/bundle.mjs concatenates modules into one scope, so generic `draw` /
-// `name` exports would collide). This index registers them as showcase files
-// so the gallery, the scene renderer and the scenario builder all share one
-// source of truth. No hardcoded scene lives here.
+// Every object file exports one uniquely-named showcase object
+// (single-export pattern — generic `draw` / `name` exports would collide
+// if modules are ever concatenated into one scope). This index registers
+// them as showcase files so the gallery, the scene renderer and the
+// scenario builder all share one source of truth. No scene is hardcoded
+// here — scenes live in js/data/scenes/ as pure data.
 
 import { Desk } from "./desk.js";
 import { RoundTable } from "./roundTable.js";
@@ -31,9 +31,6 @@ import { Win } from "./window.js";
 import { Door } from "./door.js";
 import { Whiteboard } from "./whiteboard.js";
 import { Clock } from "./clock.js";
-import { Poster } from "./poster.js";
-import { Rug } from "./rug.js";
-import { Zone } from "./zone.js";
 import { Character } from "./character.js";
 
 /** All object modules in sidebar order (furniture → scenery → character). */
@@ -41,13 +38,15 @@ export const OBJECT_MODULES = [
   Desk, RoundTable, Chair, Stool, Laptop, Cup, CupRow, Papers, Lamp,
   DeskSign, Counter, CoffeeMachine, Kettle, WaterCooler, Cabinet,
   Printer, Crates, Sofa, Plant,
-  Wall, Win, Door, Whiteboard, Clock, Poster, Rug, Zone,
+  Wall, Win, Door, Whiteboard, Clock,
   Character,
 ];
 
 /** name → module (e.g. OBJECTS.chair.draw). */
 export const OBJECTS = {};
 for (const m of OBJECT_MODULES) OBJECTS[m.name] = m;
+
+export { sortByFootprint, sortByAnchorOffset, sortBackdrop } from "./sortY.js";
 
 /** ShowcaseFile entries in the AntonLapshin/showcase shape. */
 export const showcaseFiles = OBJECT_MODULES.map((m) => ({
@@ -89,7 +88,5 @@ export function assetSortY(a) {
       return a.y + (a.d || 0) / 2;
     }
   }
-  if (a.asset === "roundTable") return a.y + (a.r || 60) * 0.5 * 0.9;
-  if (a.asset === "plant") return a.y + 8;
   return a.y + (a.d || 0) / 2;
 }

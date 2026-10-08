@@ -58,7 +58,6 @@ export const EMPTY_STUDIO_SCENE = {
   windows: [{ id: "win1", wall: "wN", x: 420, y: 50, w: 200, h: 46, view: "city" }],
   door: { id: "door1", x: 500, y: 660, w: 40, h: 20, frame: "#8f6b45", label: "ENTRANCE" },
   wallDecor: [],
-  floorDecals: [],
   lightPatches: [{ x: 420, w: 200 }],
   assets: [],
 };

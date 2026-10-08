@@ -1,5 +1,6 @@
 // render/objects/clock.js — wall clock showcase file.
 import { ell } from "../../core/utils.js";
+import { sortBackdrop } from "./sortY.js";
 
 export const Clock = {
   name: "clock",
@@ -36,7 +37,5 @@ export const Clock = {
   c.fill();
   c.lineCap = "butt";
 },
-  sortY() { 
-  return -Infinity;
-}
+  sortY: sortBackdrop,
 };

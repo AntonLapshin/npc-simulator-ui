@@ -1,5 +1,6 @@
 // render/objects/stool.js — round stool showcase file. FIXED orientation.
 import { ell, ellShadow, shade } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Stool = {
   name: "stool",
@@ -56,7 +57,5 @@ export const Stool = {
     c.stroke();
   },
 
-  sortY(a) {
-    return a.y + 13;
-  },
+  sortY: sortByAnchorOffset(13),
 };

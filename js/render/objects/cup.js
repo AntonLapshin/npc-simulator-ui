@@ -1,6 +1,7 @@
 // render/objects/cup.js — mug showcase file. FIXED orientation (handle on
 // the east side, rim + coffee read from above).
 import { ell } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Cup = {
   name: "cup",
@@ -54,7 +55,5 @@ export const Cup = {
     c.fill();
   },
 
-  sortY(a) {
-    return (a.y || 0) + 2;
-  },
+  sortY: sortByAnchorOffset(2),
 };

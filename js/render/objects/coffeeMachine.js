@@ -2,6 +2,7 @@
 // FIXED orientation: control panel and brew bay face south. Sits on a
 // counter via `z`.
 import { ell, rrPath } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const CoffeeMachine = {
   name: "coffeeMachine",
@@ -83,7 +84,5 @@ export const CoffeeMachine = {
     }
   },
 
-  sortY(a) {
-    return (a.y || 0) + 2;
-  },
+  sortY: sortByAnchorOffset(2),
 };

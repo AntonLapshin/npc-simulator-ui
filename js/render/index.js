@@ -8,7 +8,7 @@
 //   chars  — [{ id, name, color, look, prop, x, y, dir, emotion,
 //              visible, isUser }]
 //            dir is a plan facing: "up" | "down" | "left" | "right"
-//            (showcase N/E/S/W map onto these — see objects/direction.js)
+//            dir is accepted (legacy input) and ignored — everyone faces south.
 //   bubbles — [{ x, y, text, kind ("say" | "thought"), name, color, alpha? }]
 //   objects — generic fallback boxes [{ id, name, x, y, w, h,
 //              passable, blocksVision }] for ids the scene doesn't paint
@@ -33,7 +33,6 @@ export {
   drawAsset,
   assetSortY,
 } from "./objects/index.js";
-export { normDir, COMPASS_VARIANTS } from "./objects/direction.js";
 export {
   OFFICE_FLOOR3_ID,
   OFFICE_FLOOR3_SCENE,

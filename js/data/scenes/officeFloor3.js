@@ -33,14 +33,6 @@ export const OFFICE_FLOOR3_SCENE = {
   wallDecor: [
     { id: "board1", asset: "whiteboard", x: 852, y: 48, w: 132, h: 50, ink: "#4f7cff" },
     { id: "clock1", asset: "clock", x: 333, y: 64, r: 15 },
-    { id: "poster1", asset: "poster", x: 588, y: 50, w: 36, h: 46, color: "#ff5d7a" },
-  ],
-  floorDecals: [
-    { id: "rugLounge", asset: "rug", x: 205, y: 285, w: 290, h: 215, color: "#4f7cff", trim: "#9b6cf5" },
-    { id: "rugEntrance", asset: "rug", x: 500, y: 616, w: 120, h: 76, color: "#2ec4a6", trim: "#ffb648" },
-    { id: "zoneDesk", asset: "zone", x: 770, y: 390, w: 400, h: 330, color: "#ffb648", label: "DESK POD · A/B" },
-    { id: "zoneLounge", asset: "zone", x: 205, y: 285, w: 300, h: 230, color: "#4f7cff", label: "LOUNGE" },
-    { id: "zoneKitchen", asset: "zone", x: 520, y: 170, w: 260, h: 110, color: "#2ec4a6", label: "KITCHEN" },
   ],
   lightPatches: [{ x: 110, w: 180 }, { x: 400, w: 170 }, { x: 650, w: 180 }],
 

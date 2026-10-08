@@ -1,30 +1,22 @@
-// render/background.js — static background layer (backwards-compat layer).
+// render/background.js — static background layer.
 //
-// Refactored: wall/window/door/decor/rug/zone painters now live in their own
-// files under `render/objects/` (showcase pattern). This module keeps the
-// original API (`paintBackground`, `drawWall`, …) and composes the cached
+// The wall/window/door/decor painters live in their own files under
+// `render/objects/` (showcase pattern). This module composes the cached
 // background from the object modules. No scene is hardcoded here — the scene
 // descriptor is passed in (see js/data/scenes/officeFloor3.js).
 
-import { linGrad, mulberry, rrPath, poly, rgba, shade, ell } from "../core/utils.js";
-import { viewOptions } from "./viewOptions.js";
+import { linGrad, mulberry, rrPath, poly, shade } from "../core/utils.js";
 import { Wall } from "./objects/wall.js";
 import { Win } from "./objects/window.js";
 import { Door } from "./objects/door.js";
 import { Whiteboard } from "./objects/whiteboard.js";
 import { Clock } from "./objects/clock.js";
-import { Poster } from "./objects/poster.js";
-import { Rug } from "./objects/rug.js";
-import { Zone } from "./objects/zone.js";
 
 export const drawWall = Wall.draw;
 export const drawWindow = Win.draw;
 export const drawDoor = Door.draw;
 export const drawWhiteboard = Whiteboard.draw;
 export const drawClock = Clock.draw;
-export const drawPoster = Poster.draw;
-export const drawRug = Rug.draw;
-export const drawZone = Zone.draw;
 
 export function paintBackground(c, scene, dims) {
   const { w: W, h: H } = dims;
@@ -37,21 +29,36 @@ export function paintBackground(c, scene, dims) {
   rrPath(c, F.x - 16, F.y - 8, F.w + 32, F.h + 40, 26);
   c.fill();
 
-  const cor = scene.corridor;
-  if (cor && cor.w > 0 && cor.h > 0) {
-    c.fillStyle = cor.color;
-    c.fillRect(cor.x, cor.y, cor.w, cor.h);
-    c.fillStyle = "rgba(255,255,255,.05)";
-    for (let sx = cor.x + 8; sx + 18 <= cor.x + cor.w - 8; sx += 30) c.fillRect(sx, cor.y + 6, 18, cor.h - 12);
-    c.fillStyle = "rgba(0,0,0,.5)";
-    c.fillRect(cor.x, cor.y, cor.w, 4);
-  }
+  paintCorridor(c, scene);
+  paintFloor(c, scene, F);
+  paintWallBand(c, scene, F);
+}
 
+function paintCorridor(c, scene) {
+  const cor = scene.corridor;
+  if (!cor || !(cor.w > 0) || !(cor.h > 0)) return;
+  c.fillStyle = cor.color;
+  c.fillRect(cor.x, cor.y, cor.w, cor.h);
+  c.fillStyle = "rgba(255,255,255,.05)";
+  for (let sx = cor.x + 8; sx + 18 <= cor.x + cor.w - 8; sx += 30) c.fillRect(sx, cor.y + 6, 18, cor.h - 12);
+  c.fillStyle = "rgba(0,0,0,.5)";
+  c.fillRect(cor.x, cor.y, cor.w, 4);
+}
+
+function paintFloor(c, scene, F) {
   c.save();
   rrPath(c, F.x, F.y, F.w, F.h, 6);
   c.clip();
   c.fillStyle = F.base;
   c.fillRect(F.x, F.y, F.w, F.h);
+  paintPlanks(c, F);
+  paintLightPatches(c, scene, F);
+  paintWallShadows(c, F);
+  c.restore();
+}
+
+/** Deterministic wood-plank texture (mulberry32 — stable across repaints). */
+function paintPlanks(c, F) {
   const rnd = mulberry(20240917);
   for (let y = F.y; y < F.y + F.h; y += F.plank) {
     const off = ((y - F.y) / F.plank) % 2 ? -70 : 0;
@@ -64,13 +71,16 @@ export function paintBackground(c, scene, dims) {
       c.strokeRect(x + 0.5, y + 0.5, 149, F.plank - 1);
     }
   }
-  (scene.lightPatches || []).forEach((lp) => {
+}
+
+function paintLightPatches(c, scene, F) {
+  for (const lp of scene.lightPatches || []) {
     const gr = linGrad(c, 0, F.y, 0, F.y + 230, [
       [0, "rgba(255,244,205,.34)"],
       [0.55, "rgba(255,240,200,.13)"],
       [1, "rgba(255,240,200,0)"],
     ]);
-    if (!gr) return;
+    if (!gr) continue;
     c.fillStyle = gr;
     poly(c, [[lp.x, F.y], [lp.x + lp.w, F.y], [lp.x + lp.w + 46, F.y + 232], [lp.x - 30, F.y + 232]]);
     c.strokeStyle = "rgba(255,255,255,.14)";
@@ -82,11 +92,11 @@ export function paintBackground(c, scene, dims) {
       c.lineTo(mx + 15, F.y + 232);
       c.stroke();
     }
-  });
-  (scene.floorDecals || []).forEach((d) => {
-    if (d.asset === "rug") drawRug(c, d);
-    else if (d.asset === "zone" && viewOptions.showZones) drawZone(c, d);
-  });
+  }
+}
+
+/** Soft shadow the wall band casts onto the floor's north/west edges. */
+function paintWallShadows(c, F) {
   const ws = linGrad(c, 0, F.y, 0, F.y + 34, [
     [0, "rgba(60,40,20,.20)"],
     [1, "rgba(60,40,20,0)"],
@@ -103,14 +113,14 @@ export function paintBackground(c, scene, dims) {
     c.fillStyle = ws2;
     c.fillRect(F.x, F.y, 34, F.h);
   }
-  c.restore();
+}
 
+function paintWallBand(c, scene, F) {
   (scene.walls || []).filter((w) => w.layer === "back").forEach((w) => drawWall(c, w));
   (scene.windows || []).forEach((win) => drawWindow(c, win));
   (scene.wallDecor || []).forEach((d) => {
     if (d.asset === "whiteboard") drawWhiteboard(c, d);
     else if (d.asset === "clock") drawClock(c, d);
-    else if (d.asset === "poster") drawPoster(c, d);
   });
   if (scene.door && scene.door.w > 0 && scene.door.h > 0) drawDoor(c, scene.door);
 }

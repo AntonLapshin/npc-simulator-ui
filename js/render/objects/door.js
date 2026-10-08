@@ -1,5 +1,6 @@
 // render/objects/door.js — entrance door showcase file.
 import { linGrad, shade } from "../../core/utils.js";
+import { sortBackdrop } from "./sortY.js";
 
 export const Door = {
   name: "door",
@@ -39,7 +40,5 @@ export const Door = {
   c.fillText(d.label, d.x + d.w / 2, d.y - 71);
   c.textAlign = "left";
 },
-  sortY() { 
-  return -Infinity;
-}
+  sortY: sortBackdrop,
 };

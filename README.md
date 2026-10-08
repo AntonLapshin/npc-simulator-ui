@@ -96,7 +96,6 @@ renderer.render({
 });
 renderer.setScene(getScene("other_id")); // swap scenery
 renderer.setNames(on);   // name plates
-renderer.setZones(on);   // zone overlays (repaints the cached background)
 ```
 
 * `pose` is one of `stand | sit | kneel | doggy | prone` (default `stand`).
@@ -105,7 +104,7 @@ renderer.setZones(on);   // zone overlays (repaints the cached background)
   in front of the character).
 * `look` is `{ skin, skin2, hair, hairStyle, shirt, shirt2, pants, shoes }`.
 * A scene is `{ meta, floor, corridor, walls, windows, door, wallDecor,
-  floorDecals, lightPatches, assets }`. Coordinates are 1040×730 view units
+  lightPatches, assets }`. Coordinates are 1040×730 view units
   with `x/y` as the footprint **center** (except walls/windows/door, which
   use top-left rects on the wall band).
 * Scene object `id`s already painted as `assets` are skipped by the
@@ -125,20 +124,26 @@ js/
   render/
     sceneRenderer.js   canvas host, resize, frame pipeline, generic fallback
     background.js      cached background layer (composes objects/* painters)
-    character.js       poses, faces per emotion, hair, mood FX, name plates
+    character.js       poses + drawCharacter (re-exports face/hair/look)
+    face.js            faces per emotion + mood FX (extracted from character.js)
+    hair.js            hair painters, all views (extracted from character.js)
+    look.js            look-field accessors with painter defaults
     bubble.js          speech & thought bubbles with collision placement
     avatar.js          small portraits (reuses character.js)
-    assets.js          back-compat re-export (see objects/)
-    viewOptions.js     Names / Zones toggles
+    viewOptions.js     Names toggle
     objects/           ONE FILE PER OBJECT (gallery source of truth)
-      direction.js     legacy N/E/S/W normalizer (kept for old world data)
       index.js         registry: OBJECTS, ASSET_DRAW, showcaseFiles, variantProps
+      sortY.js         shared painters-order key factories
       desk.js …        one module per object (see "Adding an object")
   data/
     scenes/officeFloor3.js   bundled pretty-office scene DATA (no painters)
     scenes/index.js          scene registry: getScene(id)
     samples.js               editable raw cast/bubbles for scene.html
   showcase/            gallery app (core: pure registry/URL codec, no DOM)
+    core.js            registry/select + URL + cfg codec (pure)
+    stage.js           studio-stage placement + painting (no DOM)
+    app.js             DOM wiring (sidebar, stage, config panel, deep links)
+    files.js           registry adapter over render/objects
   scene/preview.js     scene.html workbench (scene/char/pose/emotion controls)
 styles/  base.css (tokens) · showcase.css (gallery) · scene.css (preview)
 tools/serve.mjs        zero-dependency static server
@@ -154,15 +159,18 @@ tests/
    consumers, so generic `draw`/`name` exports would collide):
    ```js
    import { gemBox } from "../../core/utils.js";
+   import { sortByFootprint } from "./sortY.js";
    export const Thing = {
      name: "thing", title: "Thing",
      supportsDirection: false, variants: ["Default"],
      defaultProps: { asset: "thing", id: "thing", x: 0, y: 0 /* … */ },
      draw(c, p) { /* paint centered on p.x/p.y, front face south */ },
-     sortY(p) { return p.y; }, // painters order: southern-most floor edge wins
+     sortY: sortByFootprint(), // painters order: southern-most floor edge wins
      showcaseScale: 1.5, // optional gallery zoom (scene renders stay 1:1)
    };
    ```
+   `sortY.js` also offers `sortByAnchorOffset(n)` (props on surfaces) and
+   `sortBackdrop` (walls/decor that always paint behind everything).
    **Draw it facing south** — top face + south face, no rotation, no
    direction variants. (North-facing lids are a laptop privilege.)
 2. Register it in `js/render/objects/index.js` (`OBJECT_MODULES`, sidebar

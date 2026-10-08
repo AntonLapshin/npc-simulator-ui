@@ -1,5 +1,6 @@
 // render/objects/deskSign.js — desk name-plate showcase file.
 import { poly, rrPath } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const DeskSign = {
   name: "deskSign",
@@ -26,8 +27,5 @@ export const DeskSign = {
   c.fillText(a.text || "", x, Y - 5.5);
   c.textAlign = "left";
 },
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return (a.y || 0) + 2;
-}
+  sortY: sortByAnchorOffset(2),
 };

@@ -1,6 +1,7 @@
 // render/objects/waterCooler.js — water cooler showcase file. FIXED
 // orientation: taps and drip tray face south, bottle on top.
 import { ellShadow, rrPath } from "../../core/utils.js";
+import { sortByFootprint } from "./sortY.js";
 
 export const WaterCooler = {
   name: "waterCooler",
@@ -74,7 +75,5 @@ export const WaterCooler = {
     }
   },
 
-  sortY(a) {
-    return a.y + (a.d || 0) / 2;
-  },
+  sortY: sortByFootprint(),
 };

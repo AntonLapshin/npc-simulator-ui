@@ -64,3 +64,24 @@
   font-weight:800;font-size:11px;letter-spacing:.6px;text-transform:uppercase;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.15s}
 .sc-toggle.on{background:linear-gradient(140deg,var(--em),#57d8be);border-color:transparent;color:#04121a;
   box-shadow:0 6px 18px rgba(46,196,166,.35)}
+
+/* ── fixed-height page (desktop): the page itself never scrolls; the stage
+      is capped smaller and the panels below it scroll internally ───────── */
+@media(min-width:901px){
+  html:has(body.sc-page),body.sc-page{height:100%}
+  body.sc-page{overflow:hidden}
+  body.sc-page .sc-app{height:calc(100vh - 40px);align-items:stretch}
+  /* sidebar fills the height; the object list scrolls inside it */
+  body.sc-page .sc-side{position:static;max-height:none;display:flex;flex-direction:column;min-height:0}
+  body.sc-page .sc-list{max-height:none;flex:1 1 auto;min-height:0;overflow-y:auto}
+  /* main column is a fixed-height stack: header + small stage, then the
+     config and props panels take the remaining space and scroll inside */
+  body.sc-page .sc-main{min-height:0;overflow:hidden}
+  body.sc-page .sc-head{flex:0 0 auto}
+  body.sc-page .sc-stagecard{flex:0 0 auto;padding:10px}
+  body.sc-page .sc-stage{max-height:30vh;display:flex;align-items:center;justify-content:center}
+  body.sc-page .sc-stage canvas{width:auto;height:auto;max-width:100%;max-height:30vh}
+  body.sc-page .sc-cfgcard{flex:0 1 auto;min-height:0;overflow-y:auto}
+  body.sc-page .sc-propscard{flex:1 1 auto;min-height:0;overflow:hidden}
+  body.sc-page .sc-propscard pre.json{max-height:none;flex:1 1 auto;min-height:0;overflow-y:auto}
+}

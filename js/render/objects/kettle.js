@@ -1,6 +1,7 @@
 // render/objects/kettle.js — stovewash-style electric kettle showcase file.
 // FIXED orientation: spout on the east side, handle arch over the top.
 import { ell, rrPath, shade } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Kettle = {
   name: "kettle",
@@ -64,7 +65,5 @@ export const Kettle = {
     c.fill();
   },
 
-  sortY(a) {
-    return (a.y || 0) + 2;
-  },
+  sortY: sortByAnchorOffset(2),
 };

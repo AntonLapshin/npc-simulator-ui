@@ -64,3 +64,32 @@ export function decodeUrlPath(search) {
   const q = new URLSearchParams(String(search || "").replace(/^[?#]/, ""));
   return { file: q.get("file"), showcase: q.get("showcase") };
 }
+
+/* ── character config codec (`?cfg=…`, pure) ────────────────────────── */
+
+/** Parse the `cfg` query param (JSON) back into a config object. */
+export function decodeCfg(search) {
+  const q = new URLSearchParams(String(search || "").replace(/^[?#]/, ""));
+  const raw = q.get("cfg");
+  if (!raw) return {};
+  try {
+    const v = JSON.parse(raw);
+    return v && typeof v === "object" ? v : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Serialize a config object back to the `cfg` query param (or null). */
+export function encodeCfg(cfg) {
+  return Object.keys(cfg).length ? JSON.stringify(cfg) : null;
+}
+
+/** Apply stored config values on top of module defaults (in props order). */
+export function applyCfg(module, props, cfg) {
+  const controls = module.controls || [];
+  for (const ctl of controls) {
+    if (ctl.key in cfg) ctl.apply(props, cfg[ctl.key]);
+  }
+  return props;
+}

@@ -3,6 +3,7 @@
 // seat + skirt toward the camera). No rotation, no direction variants.
 
 import { ellShadow, flatRect, rrPath, shade, solidBox } from "../../core/utils.js";
+import { sortByFootprint } from "./sortY.js";
 
 export const Sofa = {
   name: "sofa",
@@ -63,9 +64,7 @@ export const Sofa = {
     pillow(c, x + w / 4 + 4, y - d / 2 + bt - 2, bh - 16, 0.16, "#ffb648");
   },
 
-  sortY(a) {
-    return a.y + (a.d || 62) / 2;
-  },
+  sortY: sortByFootprint(62),
 };
 
 function pillow(c, x, y, z, rot, col) {
