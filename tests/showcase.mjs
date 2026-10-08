@@ -47,7 +47,7 @@ async function test(name, fn) {
 console.log("showcase tests (registry + isolated objects)");
 
 await test("every object module exposes showcase metadata", () => {
-  assert.ok(OBJECT_MODULES.length >= 27, `expected ≥27 objects, got ${OBJECT_MODULES.length}`);
+  assert.ok(OBJECT_MODULES.length >= 24, `expected ≥24 objects, got ${OBJECT_MODULES.length}`);
   const names = new Set();
   for (const m of OBJECT_MODULES) {
     assert.equal(typeof m.name, "string", "name");

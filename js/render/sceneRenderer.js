@@ -13,7 +13,7 @@
 
 import { radGrad, rrPath, shade, solidBox } from "../core/utils.js";
 import { paintBackground, drawWall } from "./background.js";
-import { drawAsset, assetSortY } from "./assets.js";
+import { drawAsset, assetSortY } from "./objects/index.js";
 import { drawCharacter } from "./character.js";
 import { drawBubble } from "./bubble.js";
 import { viewOptions } from "./viewOptions.js";
@@ -85,10 +85,13 @@ export class SceneRenderer {
     }
   }
 
-  /** Zones are part of the cached background → repaint + re-render. */
-  setZones(on) {
-    viewOptions.showZones = on;
-    this.repaintBackground();
+  /**
+   * @deprecated The Zone object was removed — zones no longer exist.
+   * Kept as a no-op so older consumers (the engine's console HUD)
+   * don't throw when toggling them.
+   */
+  setZones() {
+    /* zones removed; nothing to toggle */
   }
 
   setNames(on) {
