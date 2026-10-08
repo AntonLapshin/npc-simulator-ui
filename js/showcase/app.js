@@ -77,7 +77,7 @@ function buildControls(module, cfg, onChange) {
         b.addEventListener("click", () => onChange(ctl, opt.value));
         box.append(b);
       });
-      row.append(b);
+      row.append(box);
     } else if (ctl.type === "toggle") {
       const b = document.createElement("button");
       b.className = "sc-toggle";
