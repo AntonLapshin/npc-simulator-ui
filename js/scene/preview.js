@@ -9,11 +9,7 @@ import { SceneRenderer } from "../render/sceneRenderer.js";
 import { getScene, sceneIds, OFFICE_FLOOR3_ID } from "../data/scenes/index.js";
 import { SAMPLE_CHARS, SAMPLE_BUBBLES, EMPTY_STUDIO_SCENE, SAMPLE_GENERIC_OBJECTS } from "../data/samples.js";
 import { POSES, POSE_TITLES } from "../render/character.js";
-
-const EMOTIONS = [
-  "neutral", "happy", "nervous", "sad", "excited",
-  "surprised", "thinking", "confident", "shy", "proud", "annoyed",
-];
+import { EMOTIONS } from "../render/objects/character.js";
 
 const SCENE_ALIASES = { empty: EMPTY_STUDIO_SCENE };
 
@@ -59,7 +55,6 @@ function main() {
   const countEl = document.getElementById("pvCount");
   const tgNames = document.getElementById("tgNames");
   const tgBubbles = document.getElementById("tgBubbles");
-  const tgZones = document.getElementById("tgZones");
 
   // deep-copied working state — the page owns it, nothing else mutates it
   const chars = SAMPLE_CHARS.map((c) => ({ ...c, look: { ...c.look } }));
@@ -164,11 +159,6 @@ function main() {
   tgNames.addEventListener("click", () => {
     const on = tgNames.classList.toggle("on");
     renderer.setNames(on);
-    render();
-  });
-  tgZones.addEventListener("click", () => {
-    const on = tgZones.classList.toggle("on");
-    renderer.setZones(on);
     render();
   });
   tgBubbles.addEventListener("click", () => {
