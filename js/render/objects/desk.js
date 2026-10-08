@@ -4,6 +4,7 @@
 // face, the slab top and the drawer pedestal front).
 
 import { ellShadow, gemBox, rrPath, shade } from "../../core/utils.js";
+import { sortByFootprint } from "./sortY.js";
 
 /** Slab (t) at height h on four simple legs (no drawers). */
 export const Desk = {
@@ -64,7 +65,5 @@ export const Desk = {
     }
   },
 
-  sortY(a) {
-    return a.y + (a.d || 0) / 2;
-  },
+  sortY: sortByFootprint(),
 };

@@ -1,5 +1,6 @@
 // render/objects/window.js — window showcase file.
 import { linGrad, mulberry, poly } from "../../core/utils.js";
+import { sortBackdrop } from "./sortY.js";
 
 export const Win = {
   name: "window",
@@ -51,7 +52,5 @@ export const Win = {
   c.fillStyle = "rgba(255,255,255,.5)";
   c.fillRect(x, y + h * 0.34, w, 2);
 },
-  sortY() { 
-  return -Infinity;
-}
+  sortY: sortBackdrop,
 };

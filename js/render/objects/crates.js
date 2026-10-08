@@ -1,5 +1,6 @@
 // render/objects/crates.js — stacked crates showcase file. FIXED orientation.
 import { ellShadow, solidBox } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Crates = {
   name: "crates",
@@ -22,9 +23,7 @@ export const Crates = {
     crateLines(c, x - 15, y - 22, 30, 26, 24);
   },
 
-  sortY(a) {
-    return (a.y || 0) + 20;
-  },
+  sortY: sortByAnchorOffset(20),
 };
 
 /** Two plank grooves on the south face of a crate. */

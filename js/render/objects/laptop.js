@@ -5,6 +5,7 @@
 // at a desk… or north of it at a desk chair) sees the screen; we never do.
 
 import { rrPath } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Laptop = {
   name: "laptop",
@@ -63,7 +64,5 @@ export const Laptop = {
     c.fill();
   },
 
-  sortY(a) {
-    return (a.y || 0) + 5;
-  },
+  sortY: sortByAnchorOffset(5),
 };

@@ -1,5 +1,6 @@
 // render/objects/plant.js — potted plant showcase file. FIXED orientation.
 import { ell, ellShadow, poly, rrPath, shade } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Plant = {
   name: "plant",
@@ -79,7 +80,5 @@ export const Plant = {
     c.restore();
   },
 
-  sortY(a) {
-    return (a.y || 0) + 8;
-  },
+  sortY: sortByAnchorOffset(8),
 };

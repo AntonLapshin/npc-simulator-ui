@@ -37,3 +37,8 @@ kbd{background:rgba(255,255,255,.07);border:1px solid var(--line);border-bottom-
 /* shared thin scrollbar */
 .log::-webkit-scrollbar,pre.json::-webkit-scrollbar{width:7px;height:7px}
 .log::-webkit-scrollbar-thumb,pre.json::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:9px}
+
+/* dark-native form controls: the closed select is styled per-page, but the
+   OS-rendered option list falls back to white without these */
+select{color-scheme:dark}
+select option,select optgroup{background-color:#141b2e;color:var(--txt)}

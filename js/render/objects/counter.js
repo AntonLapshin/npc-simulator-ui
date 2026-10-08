@@ -1,6 +1,6 @@
 // render/objects/counter.js — kitchen counter showcase file.
 import { ellShadow, poly, rrPath, shade, solidBox } from "../../core/utils.js";
-
+import { sortByFootprint } from "./sortY.js";
 
 /** Solid carcass, worktop on top face, doors on front face. */
 
@@ -49,8 +49,5 @@ export const Counter = {
   c.fillStyle = "rgba(0,0,0,.14)";
   c.fillRect(x - w / 2, fy1 - 3, w, 3);
 },
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return a.y + (a.d || 0) / 2;
-}
+  sortY: sortByFootprint(),
 };

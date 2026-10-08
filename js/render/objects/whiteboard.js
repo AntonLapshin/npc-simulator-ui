@@ -1,5 +1,6 @@
 // render/objects/whiteboard.js — whiteboard decor showcase file.
 import { rrPath, rgba } from "../../core/utils.js";
+import { sortBackdrop } from "./sortY.js";
 
 export const Whiteboard = {
   name: "whiteboard",
@@ -42,7 +43,5 @@ export const Whiteboard = {
   c.fillRect(d.x + 84, d.y + d.h - 11, 58, 2);
   c.restore();
 },
-  sortY() { 
-  return -Infinity;
-}
+  sortY: sortBackdrop,
 };

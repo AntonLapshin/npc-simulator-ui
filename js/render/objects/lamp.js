@@ -1,5 +1,6 @@
 // render/objects/lamp.js — desk lamp showcase file.
 import { ell, poly, radGrad, rrPath } from "../../core/utils.js";
+import { sortByAnchorOffset } from "./sortY.js";
 
 export const Lamp = {
   name: "lamp",
@@ -35,8 +36,5 @@ export const Lamp = {
   ell(c, x, Y - 26, 10, 3);
   c.fill();
 },
-  sortY(a) { 
-  if (typeof a.sort === "number") return a.sort;
-  return (a.y || 0) + 2;
-}
+  sortY: sortByAnchorOffset(2),
 };
