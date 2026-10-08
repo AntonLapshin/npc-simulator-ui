@@ -2,6 +2,7 @@
    base.css — theme tokens, reset, page background, shared primitives
    ═══════════════════════════════════════════════════════════════════ */
 :root{
+  color-scheme:dark;
   --panel:rgba(255,255,255,.045); --panel2:rgba(255,255,255,.03);
   --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.06);
   --txt:#e9eefb; --mut:#8fa0c0; --dim:#5f6e8c;
@@ -34,9 +35,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.35;
 kbd{background:rgba(255,255,255,.07);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;
   padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mut)}
 
-/* shared thin scrollbar */
-.log::-webkit-scrollbar,pre.json::-webkit-scrollbar{width:7px;height:7px}
-.log::-webkit-scrollbar-thumb,pre.json::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:9px}
+/* dark scrollbars everywhere (webkit-based browsers; Firefox follows
+   color-scheme:dark on :root) */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-corner{background:transparent}
+*::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:8px;
+  border:2px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.28);
+  border:2px solid transparent;background-clip:content-box}
 
 /* dark-native form controls: the closed select is styled per-page, but the
    OS-rendered option list falls back to white without these */

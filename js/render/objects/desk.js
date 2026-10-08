@@ -49,11 +49,11 @@ export const Desk = {
     c.fillRect(x0 + 13, y1 - 17, 10, 3);
     c.fillRect(x1 - 23, y1 - 17, 10, 3);
 
-    /* slab */
-    gemBox(c, x, y, w, d, h, t, top, shade(edge, -0.1), 8);
+    /* slab — square corners: the rounded tabletop/leg junction looked blobby */
+    gemBox(c, x, y, w, d, h, t, top, shade(edge, -0.1), 0);
     c.strokeStyle = "rgba(120,100,70,.16)";
     c.lineWidth = 1;
-    rrPath(c, x0 + 8, y0 - h + 7, w - 16, d - 14, 5);
+    rrPath(c, x0 + 8, y0 - h + 7, w - 16, d - 14, 0);
     c.stroke();
     /* faint grain */
     c.strokeStyle = "rgba(120,100,70,.08)";
